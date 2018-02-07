@@ -1,11 +1,29 @@
 # IDEs
-.idea
+.idea/
+.vs/
+.vscode/
 
 # Compiled python modules
-*.pyc
+*.py[cod]
+__pycache__/
 
-# Setuptools distribution folder.
-/dist/
+# C extensions
+*.so
+
+# Distribution / packaging
+bin/
+build/
+develop-eggs/
+dist/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
 
 # Python egg metadata, regenerated from source files by setuptools.
 /*.egg-info
