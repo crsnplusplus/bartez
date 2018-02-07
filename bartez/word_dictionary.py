@@ -14,6 +14,9 @@ class Dictionary:
         self.__d = []
         self.__load()
 
+    def get_language(self):
+        return self.__language
+
     def get_page_count(self):
         return len(self.__d)
 
