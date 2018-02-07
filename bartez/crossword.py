@@ -36,7 +36,7 @@ def directions_to_index(direction):
 class Square:
     def __init__(self, x=-1, y=-1, value=SquareValues.char):
         count = directions_to_index(Direction.count)
-        self.__neighbours = [None for i in range(count)]
+        self.__neighbours = [None for _ in range(count)]
         self.__value = value
         self.__point = [x, y]
 
