@@ -150,7 +150,11 @@ class Crossworld:
             for c in range(0, self.__columns):
                 char = self.__grid[r][c].get_value()
                 if char == SquareValues.block:
-                    print(u'\u2588', end=' '),
+                    """
+                    @todo replace unicode value, now it produces codec ascii error
+                    print('\u2588', end=' '),
+                    """
+                    print('#', end=' '),
                 elif char == SquareValues.char:
                     print(u'.', end=' '),
                 else:
