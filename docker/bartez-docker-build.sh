@@ -1,2 +1,2 @@
 #!/bin/bash
-docker build -t crsnplusplus/bartez-docker-dev .
+docker build --no-cache -t crsnplusplus/bartez-docker-dev .
