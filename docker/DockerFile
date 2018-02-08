@@ -2,20 +2,18 @@ FROM ubuntu
 MAINTAINER crsnplusplus <crsnplusplus@gmail.com>
 
 RUN apt-get update
-RUN apt-get install -y apt-utils vim curl apache2 apache2-utils
-RUN apt-get -y install git-core
 
-RUN apt-get -y install python3
+RUN apt-get install -y apt-utils vim curl apache2 apache2-utils install git-core
+
+RUN apt-get install -y python3
 RUN ln /usr/bin/python3 /usr/bin/python
 
-RUN apt-get -y install python3-pip
+RUN apt-get install -y python3-pip
 RUN ln /usr/bin/pip3 /usr/bin/pip
 
-RUN apt-get -y install python3-matplotlib
+RUN apt-get install -y python3-matplotlib
 
-RUN apt-get -y install libfreetype6-dev
-RUN apt-get -y install libpng12-dev
-RUN apt-get install -y language-pack-en
+RUN apt-get install -y libfreetype6-dev libpng12-dev language-pack-en
 
 RUN pip install --upgrade pip
 RUN pip install ptvsd
