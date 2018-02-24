@@ -44,6 +44,23 @@ def get_matches(dictionary, pattern, used_words):
     matches = (x for x in potential_matches if x not in used_words)
     return matches
 
+def are_there_enough_matches(dictionary, pattern, used_words, enough=1):
+    matches_count = 0
+    page = dictionary.get_page(len(pattern) - 1)
+
+    for dictionary_entry in page:
+        word = dictionary_entry.get()
+        if word in used_words:
+            continue
+        if re.match(pattern, word) is None:
+            continue
+        
+        matches_count += 1
+
+        if matches_count >= enough:
+            return True
+    
+    return False
 
 def bridges(G):
   """

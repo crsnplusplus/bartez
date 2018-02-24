@@ -3,7 +3,7 @@ import networkx as nx
 from copy import copy
 from bartez.utils_plot import save_graph_to_image
 from bartez.utils_debug import print_crossword
-from bartez.utils_solver import get_pattern, get_matches
+from bartez.utils_solver import get_pattern, get_matches, are_there_enough_matches, get_entries_intersection
 
 
 class CrosswordSolver:
@@ -40,7 +40,7 @@ class CrosswordSolver:
     def __get_traverse_order(self):
         nodes = self.__graph.nodes()
         node_zero = self.__graph.nodes()[0]
-        bfs = nx.bfs_tree(self.__graph, 0)
+        bfs = nx.dfs_tree(self.__graph, 0)
         bfs_to = list(nx.dfs_preorder_nodes(bfs))
         traverse_order = nx.dfs_preorder_nodes(self.__graph)
         #return list(traverse_order)
@@ -69,9 +69,17 @@ class CrosswordSolver:
                 # trying a match
                 entry_copy.set_value(match)
                 entry_copy.set_is_valid(True)
+                used_words_copy = copy(used_words)
+                used_words_copy.append(match)
+
+                if self.__forward_check(self.__dictionary,
+                                        used_words_copy,
+                                        entry_index,
+                                        entries_copy) == False:
+                    continue
+
                 used_words.append(match)
 
-                #print entry.description(), " -> ", match
                 if self.__solve_backtracking(entries_copy):
                     return True
                 # that branch didn't go well, trying next
@@ -80,6 +88,50 @@ class CrosswordSolver:
                 used_words.pop()
 
             return False  # backtracking
+        return True
+
+
+    def __forward_check(self, dictionary, used_words, entry_index, entries, descend=True):
+        entry = entries[entry_index]
+        pattern = entry.value()
+
+        for relation_index, relation in enumerate(entry.relations()):
+            pattern_as_list = list(pattern)
+            other = entries[relation.index()]
+            if other.is_valid() == True:
+                continue
+
+            other_pattern_as_list = list(other.value())
+
+            pos_in_entry, pos_in_other = get_entries_intersection(relation.coordinate(), entry, other)
+            other_pattern_as_list[pos_in_other] = pattern_as_list[pos_in_entry]
+
+            other_pattern = "".join(other_pattern_as_list)
+
+            if are_there_enough_matches(dictionary, other_pattern, used_words, 1) == False:
+                return False
+
+        return True
+
+
+    def __build_pattern(self, dictionary, used_words, entry_index, entries):
+        entry = entries[entry_index]
+        pattern = entry.value()
+
+        for relation_index, relation in enumerate(entry.relations()):
+            pattern_as_list = list(pattern)
+            other_index = relation.index()
+            other = entries[other_index]
+            other_pattern_as_list = list(other.value())
+
+            pos_in_entry, pos_in_other = get_entries_intersection(relation.coordinate(), entry, other)
+            other_pattern_as_list[pos_in_other] = pattern_as_list[pos_in_entry]
+
+            other_pattern = "".join(other_pattern_as_list)
+
+            if are_there_enough_matches(dictionary, other_pattern, used_words, 2) == False:
+                return False
+
         return True
 
     def run(self):
