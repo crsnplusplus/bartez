@@ -18,24 +18,5 @@ class Test_bartez(unittest.TestCase):
         self.assertTrue(dictionary.get_words_count() > 0)
         self.assertTrue(len(dictionary.get_language()) > 0)
 
-        """
-    def test_bartez_solve(self):
-        dictionary = get_dictionary()
-        print("done")
-        print("words count: ", dictionary.get_words_count())
-        board, geometry = boards.get_default_board()
-        crossword = Crossworld(geometry[0], geometry[1])
-
-        for p in board:
-            r, c = p[0], p[1]
-            crossword.set_value(r, c, SquareValues.block)
-
-        crossword.prepare()
-        crossword.print_crossword()
-
-        solver = CrosswordSolver(dictionary, crossword)
-        solver.run()
-        """
-
 if __name__ == '__main__':
     unittest.main()
