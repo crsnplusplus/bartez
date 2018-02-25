@@ -1,7 +1,7 @@
 from bartez import boards
 from bartez.crossword import Crossworld
 from bartez.crossword import SquareValues
-from bartez.solver import CrosswordSolver
+from bartez.solver.solver import CrosswordSolver
 from bartez.word_dictionary import Dictionary
 
 
