@@ -8,7 +8,7 @@ from bartez import entry
 from bartez.crossword import Crossworld, SquareValues
 from bartez.tests.test_utils import *
 
-class Test_graph_dev(unittest.TestCase):
+class Test_bartez_graph_dev(unittest.TestCase):
     def test_bartez_graph_nx_create(self):
         crossword = get_test_crossword()
         entries = crossword.get_entries()
