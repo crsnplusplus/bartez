@@ -1,6 +1,9 @@
 import unittest
+
 from bartez.dictionary.trie import *
+from bartez.dictionary.trie_node import *
 from bartez.dictionary.trie_node_visitor import *
+from bartez.tests.test_utils import *
 
 class Test_bartez_trie(unittest.TestCase):
     def test_bartez_trie_creation(self):
@@ -8,12 +11,12 @@ class Test_bartez_trie(unittest.TestCase):
         self.assertTrue(trie.is_loaded() == True)
 
 
-    #def test_bartez_trie_visitor_print(self):
-    #    trie = BartezTrie('italian', 'words_test_1000.txt')
-    #    printVisitor = BartezNodeVisitorPrint()
-    #    root = trie.get_root()
-    #    root.accept(printVisitor)
-    #    self.assertTrue(trie.is_loaded() == True)
+    def test_bartez_trie_visitor_print(self):
+        trie = BartezTrie('italian', 'words_test_1000.txt')
+        printVisitor = BartezNodeVisitorPrint()
+        root = trie.get_root()
+        root.accept(printVisitor)
+        self.assertTrue(trie.is_loaded() == True)
 
 
     def test_bartez_trie_visitor_list(self):

@@ -114,8 +114,8 @@ class Crossworld:
 
     def set_blocks(self, blocks):
         for block in blocks:
-            r = block.get_coordinates()[Coordinates.horizontal]
-            c = block.get_coordinates()[Coordinates.vertical]
+            r = block[0]
+            c = block[1]
 
             if c >= self.__columns:
                 continue
