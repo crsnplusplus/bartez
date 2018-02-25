@@ -1,4 +1,4 @@
-from bartez.dictionary.trie_node import BartezNode, BartezNodeTerminal, BartezNodeNonTerminal
+from bartez.dictionary.trie_node import BartezNodeTerminal, BartezNodeNonTerminal
 
 
 class BartezTrie(object):

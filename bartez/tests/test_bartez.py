@@ -2,8 +2,6 @@ import unittest
 
 from bartez import boards
 from bartez.crossword import Crossworld
-from bartez.crossword import SquareValues
-from bartez.solver import CrosswordSolver
 from bartez.word_dictionary import Dictionary
 
 
@@ -17,6 +15,7 @@ class Test_bartez(unittest.TestCase):
         self.assertTrue(dictionary.get_page_count() > 0)
         self.assertTrue(dictionary.get_words_count() > 0)
         self.assertTrue(len(dictionary.get_language()) > 0)
+
 
 if __name__ == '__main__':
     unittest.main()
