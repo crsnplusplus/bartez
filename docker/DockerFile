@@ -3,7 +3,7 @@ MAINTAINER crsnplusplus <crsnplusplus@gmail.com>
 
 RUN apt-get update
 
-RUN apt-get install -y apt-utils vim curl apache2 apache2-utils install git-core
+RUN apt-get install -y apt-utils vim curl apache2 apache2-utils git-core
 
 RUN apt-get install -y python3
 RUN ln /usr/bin/python3 /usr/bin/python
@@ -22,7 +22,7 @@ RUN rm -rf /var/lib/apt/lists/*
 
 WORKDIR /home/projects/
 
-RUN git clone -b development/structure https://github.com/crsnplusplus/bartez.git
+RUN git clone -b master https://github.com/crsnplusplus/bartez.git
 
 WORKDIR /home/projects/bartez/
 RUN python setup.py develop
