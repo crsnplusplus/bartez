@@ -30,10 +30,13 @@ def split_graph(graph):
     return subgraphs, sections
 
 
-def split_graph_connected(graph):
+def split_graph_connected(graph, max_retry=100):
     everything_is_connected = False
 
+    dirk_gently = 0
+
     while everything_is_connected == False:
+        dirk_gently += 1
         subgraphs, sections = split_graph(graph)
 
         everything_is_connected = True
@@ -42,4 +45,12 @@ def split_graph_connected(graph):
             everything_is_connected &= nx.is_connected(subgraph)
 
         if everything_is_connected == True:
+            print("+++ retries: " + str(dirk_gently))
             return subgraphs, sections
+
+        if dirk_gently >= max_retry:
+            break
+
+    print("+++ retries done (max and failed): " + str(dirk_gently))
+    assert(False) # @todo remove assert
+    return None, None

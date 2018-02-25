@@ -7,7 +7,7 @@ from bartez.utils_debug import print_crossword
 from bartez.utils_solver import get_pattern, get_matches, are_there_enough_matches, get_entries_intersection
 
 
-class CateSolver:
+class ZaghiSolver:
     def __init__(self, dictionary=None, crossword=None):
         self.__dictionary = dictionary
         self.__crossword = crossword
