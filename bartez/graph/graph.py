@@ -9,6 +9,12 @@ class BartezGraph:
         self.__graph = None
         self.__traverse_order = []
 
+    def get_graph(self):
+        return self.__graph().copy()
+
+    def get_traverse_order(self):
+        return self.__traverse_order
+
     def __create_graph_x(self):
         graph = nx.Graph()
         entries = self.__crossword.entries()
