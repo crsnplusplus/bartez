@@ -8,12 +8,12 @@ class Test_bartez_trie(unittest.TestCase):
         self.assertTrue(trie.is_loaded() == True)
 
 
-    #def test_bartez_trie_visitor_print(self):
-    #    trie = BartezTrie('italian', 'words_test_1000.txt')
-    #    printVisitor = BartezNodeVisitorPrint()
-    #    root = trie.get_root()
-    #    root.accept(printVisitor)
-    #    self.assertTrue(trie.is_loaded() == True)
+    def test_bartez_trie_visitor_print(self):
+        trie = BartezTrie('italian', 'words_test_1000.txt')
+        printVisitor = BartezNodeVisitorPrint()
+        root = trie.get_root()
+        root.accept(printVisitor)
+        self.assertTrue(trie.is_loaded() == True)
 
 
     def test_bartez_trie_visitor_list(self):

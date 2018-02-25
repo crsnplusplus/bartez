@@ -35,10 +35,9 @@ class BartezNodeVisitorPrint(BartezNodeVisitor):
 
     def visit_non_terminal(self, node):
         children = node.get_children()
-        items = children.items()
 
         for child in node.get_children():
-            children[child].accept(self)
+            child.accept(self)
 
 
     def visit_terminal(self, node):
