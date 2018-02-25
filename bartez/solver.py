@@ -10,7 +10,6 @@ class CrosswordSolver:
     def __init__(self, dictionary=None, crossword=None):
         self.__dictionary = dictionary
         self.__crossword = crossword
-        self.__intersection_matrix = []
         self.__graph = None
         self.__traverse_order = []
 
