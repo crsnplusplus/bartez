@@ -47,6 +47,7 @@ def print_test_graph_info(graph, name):
     #print("is_isolate: " + str(nx.is_isolate(graph, 1)))
     print("\n")
 
+
 def split_graph(graph):
     sections = kernighan_lin_bisection(graph, max_iter=2000)#max_iter=graph.number_of_nodes()*100)
     subgraphs = []
@@ -55,6 +56,7 @@ def split_graph(graph):
         subgraphs.append(subgraph)
 
     return subgraphs, sections
+
 
 def get_best_connected_subgraphs(graph, max_subgraphs):
     subgraphs, sections = split_graph(graph)
@@ -87,3 +89,9 @@ def find_graph_common_entries(entries, first, second):
                 if m == r_index:
                     common.append(m)
     return common
+
+def set_all_entries_to_value(entries, value):
+    for entry in entries:
+        new_value = str(value)*entry.get_length()
+        entry.set_value(new_value)
+    return entries

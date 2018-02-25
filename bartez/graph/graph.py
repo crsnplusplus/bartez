@@ -12,8 +12,8 @@ class BartezGraph:
         self.__traverse_order = []
         self.__create()
 
-    def get_graph(self):
-        return self.__graph().copy()
+    def get_nx_graph(self):
+        return self.__graph.copy()
 
     def get_traverse_order(self):
         return self.__traverse_order
