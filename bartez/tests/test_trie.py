@@ -11,7 +11,7 @@ class TestBartezTrie(unittest.TestCase):
         self.assertTrue(trie.is_loaded() is True)
 
     def test_bartez_trie_visitor_print(self):
-        trie = BartezTrie('italian', get_test_dictionary_path())
+        trie = BartezTrie('italian', get_test_dictionary_path_1000())
         print_visitor = BartezNodeVisitorPrint()
         root = trie.get_root()
         root.accept(print_visitor)
