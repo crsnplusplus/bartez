@@ -61,22 +61,11 @@ def print_test_graph_info(graph, name):
     print("is_distance_regular: " + str(nx.is_distance_regular(graph)))
     print("is_eulerian: " + str(nx.is_eulerian(graph)))
     print("is_graphical: " + str(nx.is_graphical(graph)))
-    # #print("is_isolate: " + str(nx.is_isolate(graph, 1)))
     print("\n")
 
 
-def split_graph(graph):
-    sections = kernighan_lin_bisection(graph, max_iter=2000)#max_iter=graph.number_of_nodes()*100)
-    subgraphs = []
-    for section_index, section in enumerate(sections):
-        subgraph = graph.subgraph(section).copy()
-        subgraphs.append(subgraph)
-
-    return subgraphs, sections
-
-
 def get_best_connected_subgraphs(graph, max_subgraphs):
-    subgraphs, sections = split_graph(graph)
+    subgraphs, sections = kernighan_lin_bisection(graph)
 
     connected_graphs = []
     connected_sections = []

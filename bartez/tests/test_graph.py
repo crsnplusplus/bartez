@@ -1,6 +1,8 @@
 import unittest
 
 from bartez.tests.test_utils import *
+
+import bartez.graph as btz
 from bartez.graph.graph import BartezGraph
 
 import bartez.graph.graph_utils as graph_utils
@@ -13,7 +15,7 @@ def print_sub_crossword(crossword, entries):
 
 
 def prepare_sub_entries(entries, graph, value):
-    entries_from_graph = graph_utils.extract_entries_from_graph(entries, graph)
+    entries_from_graph = btz.graph_utils.extract_entries_from_graph(entries, graph)
     return set_all_entries_to_value(entries_from_graph, value)
 
 
@@ -30,7 +32,9 @@ class TestBartezGraph(unittest.TestCase):
         bartez_graph = BartezGraph(crossword)
         nx_graph = bartez_graph.get_nx_graph()
 
-        g1, g2, gi = graph_utils.split_graph_with_frontiers(entries, nx_graph)
+        g1, g2, gi = btz.graph_utils.split_graph_with_frontiers(entries, nx_graph)
+
+        gi_disconnected = btz.graph_utils.split_non_connected_sub_graphs(gi)
 
         #subgraphs12, sections12 = graph_utils.split_graph_connected(nx_graph)
         #self.assertTrue(len(subgraphs12) == 2)
@@ -39,10 +43,10 @@ class TestBartezGraph(unittest.TestCase):
         crossword.print_crossword()
         crossword.clear_all_non_blocks()
 
-        test_entries1 = prepare_sub_entries(entries, g1, u'1')
+        test_entries1 = prepare_sub_entries(entries, g1, u'A')
         print_sub_crossword(crossword, test_entries1)
 
-        test_entries2 = prepare_sub_entries(entries, g2, u'2')
+        test_entries2 = prepare_sub_entries(entries, g2, u'B')
         print_sub_crossword(crossword, test_entries2)
 
         test_entriesi = prepare_sub_entries(entries, gi, u'0')
@@ -52,6 +56,29 @@ class TestBartezGraph(unittest.TestCase):
         crossword.set_entries(test_entries1)
         crossword.set_entries(test_entries2)
         crossword.set_entries(test_entriesi)
+        crossword.clear_all_non_blocks()
+
+        test_entries1 = prepare_sub_entries(entries, g1, u'A')
+        print_sub_crossword(crossword, test_entries1)
+
+        test_entries2 = prepare_sub_entries(entries, g2, u'B')
+        print_sub_crossword(crossword, test_entries2)
+
+        test_entriesi = prepare_sub_entries(entries, gi, u'0')
+        print_sub_crossword(crossword, test_entriesi)
+        crossword.clear_all_non_blocks()
+
+        for i, g in enumerate(gi_disconnected):
+            gi_entries = prepare_sub_entries(entries, g, str(i))
+            print_sub_crossword(crossword, gi_entries)
+
+        crossword.set_entries(test_entries1)
+        crossword.set_entries(test_entries2)
+
+        for i, g in enumerate(gi_disconnected):
+            gi_entries = prepare_sub_entries(entries, g, str(i))
+            crossword.set_entries(gi_entries)
+
         crossword.print_crossword()
         return
 

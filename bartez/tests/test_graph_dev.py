@@ -17,7 +17,7 @@ class TestBartezGraphDev(unittest.TestCase):
         graph = get_test_graph(crossword)
         self.assertTrue((len(entries)) == graph.number_of_nodes())
 
-        subgraphs, subsections = split_graph(graph)
+        subgraphs, subsections = split_graph_kernighan_lin_bisection(graph)
 
         print_test_graph_info(graph, "root")
         print("subgraphs: " + str(len(subgraphs)))

@@ -36,10 +36,10 @@ def split_graph_connected(graph, max_retry=100):
     # otherwise, choose a strategy
 
     everything_is_connected = False
-    dirk_gently = 0
+    dirk = 0
 
     while everything_is_connected == False:
-        dirk_gently += 1
+        dirk += 1
         subgraphs, sections = split_graph_kernighan_lin_bisection(graph)
 
         everything_is_connected = True
@@ -48,15 +48,16 @@ def split_graph_connected(graph, max_retry=100):
             everything_is_connected &= nx.is_connected(subgraph)
 
         if everything_is_connected == True:
-            print("+++ retries: " + str(dirk_gently))
+            print("+++ retries: " + str(dirk))
             return subgraphs, sections
 
-        if dirk_gently >= max_retry:
+        if dirk >= max_retry:
             break
 
-    print("+++ retries done (max and failed): " + str(dirk_gently))
+    print("+++ retries done (max and failed): " + str(dirk))
     assert(False) # @todo remove assert
     return None, None
+
 
 
 def get_graph_intersection_nodes_from_entries(entries, graph1, graph2):
@@ -67,7 +68,7 @@ def get_graph_intersection_nodes_from_entries(entries, graph1, graph2):
 
         for r1 in relations:
             r1_index = r1.get_index()
-            r1_entry = entries[r1_index]
+            #r1_entry = entries[r1_index]
 
             for n2 in graph2:
                 if n2 == r1_index:
@@ -80,7 +81,7 @@ def get_graphs_without_intersection(entries, graph1, graph2):
     intersection_nodes = get_graph_intersection_nodes_from_entries(entries, graph1, graph2)
 
     graph1_without_intersection = graph1.copy()
-    graph2_without_intersection = graph1.copy()
+    graph2_without_intersection = graph2.copy()
 
     for node in intersection_nodes:
         if graph1_without_intersection.has_node(node):
@@ -95,12 +96,23 @@ def get_graphs_without_intersection(entries, graph1, graph2):
 
 def split_graph_with_frontiers(entries, graph):
     subgraphs01, sections01 = split_graph_connected(graph)
-    graph1 = subgraphs01[0].copy()
-    graph2 = subgraphs01[1].copy()
+    graph1 = subgraphs01[0]
+    graph2 = subgraphs01[1]
     
     intersection_nodes = get_graph_intersection_nodes_from_entries(entries, graph1, graph2)
     gi = graph.subgraph(intersection_nodes).copy()
 
-    # intersection
-    #g1, g2, _ = get_graphs_without_intersection(entries, graph1, graph2)
     return graph1, graph2, gi
+
+
+def split_non_connected_sub_graphs(graph):
+
+    connected_graphs = []
+
+    if nx.is_connected(graph):
+        connected_graphs.append(graph)
+        return connected_graphs
+
+    for c in nx.connected_components(graph):
+        connected_graphs.append(graph.subgraph(c))
+    return connected_graphs

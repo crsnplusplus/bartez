@@ -297,7 +297,6 @@ class Crossworld:
         self.__update_neighbours()
         self.__update_entries()
         self.__update_entries_relations()
-        self.print_info()
         return
 
     def print_info(self):
