@@ -5,16 +5,13 @@ from bartez.word_dictionary import Dictionary
 import networkx as nx
 from networkx.algorithms.community.kernighan_lin import kernighan_lin_bisection
 
-import os
-
 
 def get_test_dictionary_path():
-    cwd = os.getcwd()
-    return "..//..//words.txt"
+    return "words.txt"
 
 
 def get_test_dictionary_path_1000():
-    return "..//..//words_test_1000.txt"
+    return "words_test_1000.txt"
 
 
 def get_test_dictionary():
