@@ -1,18 +1,23 @@
 import unittest
 
-from copy import copy
-
-import networkx as nx
-from networkx.algorithms.community.kernighan_lin import kernighan_lin_bisection
-
 from bartez.tests.test_utils import *
 from bartez.graph.graph import BartezGraph
-from bartez.crossword import Crossworld, SquareValues
 
 import bartez.graph.graph_utils as graph_utils
 
 
-class Test_bartez_graph(unittest.TestCase):
+def print_sub_crossword(crossword, entries):
+    crossword.set_entries(entries)
+    crossword.print_crossword()
+    crossword.clear_all_non_blocks()
+
+
+def prepare_sub_entries(entries, graph, value):
+    entries_from_graph = graph_utils.extract_entries_from_graph(entries, graph)
+    return set_all_entries_to_value(entries_from_graph, value)
+
+
+class TestBartezGraph(unittest.TestCase):
     def test_bartez_graph_create(self):
         crossword = get_test_crossword()
         bartez_graph = BartezGraph(crossword)
@@ -24,27 +29,29 @@ class Test_bartez_graph(unittest.TestCase):
         entries = crossword.get_entries()
         bartez_graph = BartezGraph(crossword)
         nx_graph = bartez_graph.get_nx_graph()
-        subgraphs12, sections12 = graph_utils.split_graph_connected(nx_graph)
-        self.assertTrue(len(subgraphs12) == 2)
-        self.assertTrue(len(sections12) == 2)
+
+        g1, g2, gi = graph_utils.split_graph_with_frontiers(entries, nx_graph)
+
+        #subgraphs12, sections12 = graph_utils.split_graph_connected(nx_graph)
+        #self.assertTrue(len(subgraphs12) == 2)
+        #self.assertTrue(len(sections12) == 2)
 
         crossword.print_crossword()
         crossword.clear_all_non_blocks()
 
-        test_entries1 = graph_utils.extract_entries_from_graph(entries, subgraphs12[0])
-        test_entries1 = set_all_entries_to_value(test_entries1, u'1')
+        test_entries1 = prepare_sub_entries(entries, g1, u'1')
+        print_sub_crossword(crossword, test_entries1)
+
+        test_entries2 = prepare_sub_entries(entries, g2, u'2')
+        print_sub_crossword(crossword, test_entries2)
+
+        test_entriesi = prepare_sub_entries(entries, gi, u'0')
+        print_sub_crossword(crossword, test_entriesi)
+
+        crossword.clear_all_non_blocks()
         crossword.set_entries(test_entries1)
-        crossword.print_crossword()
-        crossword.clear_all_non_blocks()
-
-        test_entries2 = graph_utils.extract_entries_from_graph(entries, subgraphs12[1])
-        test_entries2 = set_all_entries_to_value(test_entries2, u'2')
         crossword.set_entries(test_entries2)
-        crossword.print_crossword()
-        crossword.clear_all_non_blocks()
-
-        crossword.set_entries(test_entries1)
-        crossword.set_entries(test_entries2)
+        crossword.set_entries(test_entriesi)
         crossword.print_crossword()
         return
 
@@ -69,46 +76,28 @@ class Test_bartez_graph(unittest.TestCase):
         crossword.clear_all_non_blocks()
 
         # A = 1, 2
-        test_entriesA = graph_utils.extract_entries_from_graph(entries, subgraphs[0])
-        test_entriesA = set_all_entries_to_value(test_entriesA, u'A')
-        crossword.set_entries(test_entriesA)
-        crossword.print_crossword()
-        crossword.clear_all_non_blocks()
+        test_entriesA = prepare_sub_entries(entries, subgraphs[0], u'A')
+        print_sub_crossword(crossword, test_entriesA)
 
         # B = 3, 4
-        test_entriesB = graph_utils.extract_entries_from_graph(entries, subgraphs[1])
-        test_entriesB = set_all_entries_to_value(test_entriesB, u'B')
-        crossword.set_entries(test_entriesB)
-        crossword.print_crossword()
-        crossword.clear_all_non_blocks()
+        test_entriesB = prepare_sub_entries(entries, subgraphs[1], u'B')
+        print_sub_crossword(crossword, test_entriesB)
 
         # 1
-        test_entries1 = graph_utils.extract_entries_from_graph(entries, subgraphs12[0])
-        test_entries1 = set_all_entries_to_value(test_entries1, u'1')
-        crossword.set_entries(test_entries1)
-        crossword.print_crossword()
-        crossword.clear_all_non_blocks()
+        test_entries1 = prepare_sub_entries(entries, subgraphs12[0], u'1')
+        print_sub_crossword(crossword, test_entries1)
 
         # 2
-        test_entries2 = graph_utils.extract_entries_from_graph(entries, subgraphs12[1])
-        test_entries2 = set_all_entries_to_value(test_entries2, u'2')
-        crossword.set_entries(test_entries2)
-        crossword.print_crossword()
-        crossword.clear_all_non_blocks()
+        test_entries2 = prepare_sub_entries(entries, subgraphs12[1], u'2')
+        print_sub_crossword(crossword, test_entries2)
 
         # 3
-        test_entries3 = graph_utils.extract_entries_from_graph(entries, subgraphs34[0])
-        test_entries3 = set_all_entries_to_value(test_entries3, u'3')
-        crossword.set_entries(test_entries3)
-        crossword.print_crossword()
-        crossword.clear_all_non_blocks()
+        test_entries3 = prepare_sub_entries(entries, subgraphs34[0], u'3')
+        print_sub_crossword(crossword, test_entries3)
 
         # 4
-        test_entries4 = graph_utils.extract_entries_from_graph(entries, subgraphs34[1])
-        test_entries4 = set_all_entries_to_value(test_entries4, u'4')
-        crossword.set_entries(test_entries4)
-        crossword.print_crossword()
-        crossword.clear_all_non_blocks()
+        test_entries4 = prepare_sub_entries(entries, subgraphs34[1], u'4')
+        print_sub_crossword(crossword, test_entries4)
 
         crossword.set_entries(test_entries1)
         crossword.set_entries(test_entries2)

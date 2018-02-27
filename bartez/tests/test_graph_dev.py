@@ -1,14 +1,10 @@
 import unittest
 
-import networkx as nx
-from networkx.algorithms.community.kernighan_lin import kernighan_lin_bisection
-
-from bartez import boards
-from bartez import entry
-from bartez.crossword import Crossworld, SquareValues
+from bartez.graph.graph_utils import *
 from bartez.tests.test_utils import *
 
-class Test_bartez_graph_dev(unittest.TestCase):
+
+class TestBartezGraphDev(unittest.TestCase):
     def test_bartez_graph_nx_create(self):
         crossword = get_test_crossword()
         entries = crossword.get_entries()
@@ -31,7 +27,7 @@ class Test_bartez_graph_dev(unittest.TestCase):
 
         first = subgraphs[0]
         second = subgraphs[1]
-        common = find_graph_common_entries(entries, first, second)
+        common = get_graph_intersection_nodes_from_entries(entries, first, second)
 
         section_index = 0
         for section_index, subsection in enumerate(subsections):
@@ -45,7 +41,7 @@ class Test_bartez_graph_dev(unittest.TestCase):
 
         for c in common:
             entry = entries[c]
-            entry.set_value(('+')*len(entry.get_value()))
+            entry.set_value('+'*len(entry.get_value()))
 
         crossword.set_entries(entries)
         crossword.print_crossword()

@@ -1,10 +1,29 @@
 from bartez import boards
-from bartez import entry
 from bartez.crossword import Crossworld, SquareValues
+from bartez.word_dictionary import Dictionary
 
 import networkx as nx
-from networkx.algorithms.community import k_clique_communities
 from networkx.algorithms.community.kernighan_lin import kernighan_lin_bisection
+
+import os
+
+
+def get_test_dictionary_path():
+    cwd = os.getcwd()
+    return "..//..//words.txt"
+
+
+def get_test_dictionary_path_1000():
+    return "..//..//words_test_1000.txt"
+
+
+def get_test_dictionary():
+    return Dictionary("italian", get_test_dictionary_path())
+
+
+def get_test_dictionary_1000():
+    return Dictionary("italian", get_test_dictionary_path_1000())
+
 
 def get_test_crossword():
     board, geometry = boards.get_default_board()
@@ -19,7 +38,7 @@ def get_test_crossword():
 def get_test_graph(crossword):
     graph = nx.Graph()
     entries = crossword.entries()
-    num_of_vertex = len(entries)
+    # #num_of_vertex = len(entries)
 
     for index_entry, entry in enumerate(entries):
         graph.add_node(index_entry, desc=str(entry.description()))
@@ -33,6 +52,7 @@ def get_test_graph(crossword):
 def print_test_subgraph_info(graph, name):
     print("\n* SubGraph info: " + name + "\n")
 
+
 def print_test_graph_info(graph, name):
     print("\n* Graph info: " + name + "\n")
     print("is_biconnected: " + str(nx.is_biconnected(graph)))
@@ -44,7 +64,7 @@ def print_test_graph_info(graph, name):
     print("is_distance_regular: " + str(nx.is_distance_regular(graph)))
     print("is_eulerian: " + str(nx.is_eulerian(graph)))
     print("is_graphical: " + str(nx.is_graphical(graph)))
-    #print("is_isolate: " + str(nx.is_isolate(graph, 1)))
+    # #print("is_isolate: " + str(nx.is_isolate(graph, 1)))
     print("\n")
 
 
@@ -76,19 +96,6 @@ def get_best_connected_subgraphs(graph, max_subgraphs):
 
     return connected_graphs, connected_sections
 
-
-def find_graph_common_entries(entries, first, second):
-    common = []
-    for n in first:
-        entry = entries[n]
-        rels = entry.get_relations()
-        for r in rels:
-            r_index = r.get_index()
-            entry_r = entries[r_index]
-            for m in second:
-                if m == r_index:
-                    common.append(m)
-    return common
 
 def set_all_entries_to_value(entries, value):
     for entry in entries:
