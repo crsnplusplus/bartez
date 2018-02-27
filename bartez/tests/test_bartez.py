@@ -1,7 +1,6 @@
 import unittest
 
 from bartez.tests.test_utils import *
-from bartez.word_dictionary import Dictionary
 
 
 class TestBartez(unittest.TestCase):
