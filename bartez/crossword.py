@@ -134,7 +134,7 @@ class Crossworld:
                 continue
             self.set_value_from_entry(entry)
 
-    def get_entries(self):
+    def     get_entries(self):
         return self.__entries
 
     def clear_all_non_blocks(self):

@@ -2,6 +2,20 @@ from networkx.algorithms.community.kernighan_lin import kernighan_lin_bisection
 
 import networkx as nx
 
+def create_nx_graph_from_entries(entries):
+        graph = nx.Graph()
+        num_of_vertex = len(entries)
+
+        for index_entry, entry in enumerate(entries):
+            graph.add_node(index_entry, desc=str(entry.description()))
+            relations = entry.relations()
+
+            for index_relation, relation in enumerate(relations):
+                graph.add_edge(index_entry, relation.index())
+
+        traverse_order = get_traverse_order(graph)
+        return graph, num_of_vertex, traverse_order
+
 
 def extract_entries_from_graph(entries, graph):
     extracted_entries = []

@@ -1,8 +1,4 @@
-import networkx as nx
-
 import bartez.graph.graph_utils as graph_utils
-from bartez.crossword import Crossworld
-from bartez.entry import Entry
 
 
 class BartezGraph:
@@ -25,15 +21,10 @@ class BartezGraph:
         return self.__crossword.entries()
 
     def __create(self):
-        graph = nx.Graph()
         entries = self.__crossword.entries()
-        self.__num_of_vertex = len(entries)
 
-        for index_entry, entry in enumerate(entries):
-            graph.add_node(index_entry, desc=str(entry.description()))
-            relations = entry.relations()
-            for index_relation, relation in enumerate(relations):
-                graph.add_edge(index_entry, relation.index())
+        g, v, to = graph_utils.create_nx_graph_from_entries(entries)
 
-        self.__graph = graph
-        self.__traverse_order = graph_utils.get_traverse_order(graph)
+        self.__graph = g
+        self.__num_of_vertex = v
+        self.__traverse_order = to

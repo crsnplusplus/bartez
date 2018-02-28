@@ -88,3 +88,9 @@ def set_all_entries_to_value(entries, value):
         new_value = str(value)*entry.get_length()
         entry.set_value(new_value)
     return entries
+
+
+def print_sub_crossword(crossword, entries):
+    crossword.set_entries(entries)
+    crossword.print_crossword()
+    crossword.clear_all_non_blocks()

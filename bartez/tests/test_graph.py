@@ -7,13 +7,6 @@ from bartez.graph.graph import BartezGraph
 
 import bartez.graph.graph_utils as graph_utils
 
-
-def print_sub_crossword(crossword, entries):
-    crossword.set_entries(entries)
-    crossword.print_crossword()
-    crossword.clear_all_non_blocks()
-
-
 def prepare_sub_entries(entries, graph, value):
     entries_from_graph = btz.graph_utils.extract_entries_from_graph(entries, graph)
     return set_all_entries_to_value(entries_from_graph, value)
@@ -135,4 +128,3 @@ class TestBartezGraph(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
