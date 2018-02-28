@@ -4,6 +4,7 @@
 .vscode/
 bartez.pyproj
 bartez.sln
+*.sublime-*
 
 # Compiled python modules
 *.py[cod]
