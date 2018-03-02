@@ -7,12 +7,8 @@ import networkx as nx
 from copy import copy
 
 
-def partition_split(entries_to_partition):
+def partition_split(root_partition, entries):
     partitions = []
-
-    root_partition = BartezPartitionEntriesNode(entries_to_partition)
-    assert(len(partition_utils.get_all_unsatisfied_relations_as_entries(entries_to_partition)) == 0)
-
     splitted_subgraphs, _ = split_graph_kernighan_lin_bisection(root_partition.get_graph())
 
     for splitted_subgraph in splitted_subgraphs:
@@ -20,9 +16,32 @@ def partition_split(entries_to_partition):
         for connected_component in nx.connected_components(splitted_subgraph):
 
             connected_graph = splitted_subgraph.subgraph(connected_component)
-            connected_graph_entries = select_entries_from_graph(entries_to_partition, connected_graph)
+            connected_graph_entries = select_entries_from_graph(entries, connected_graph)
 
-            partitions.append(BartezPartitionEntriesNode(connected_graph_entries))
+            partitions.append(connected_graph_entries)
+
+    return partitions
+
+
+def subpartition_with_max_vertex_count(root_partition, entries, max_vertex_count):
+    partitions = []
+    vertex_count = len(root_partition.get_entries())
+
+    has_enough_vertex = vertex_count <= max_vertex_count
+
+    if has_enough_vertex == True:
+        partitions.append(root_partition)
+        return partitions
+
+    partitions_splitted = partition_split(root_partition, entries)
+
+    for partition_splitted in partitions_splitted:
+        sub_partitions = subpartition_with_max_vertex_count(BartezPartitionEntriesNode(partition_splitted),
+                                                            entries,
+                                                            max_vertex_count)
+
+        for sub_partition in sub_partitions:
+            partitions.append(sub_partition)
 
     return partitions
 
@@ -54,7 +73,7 @@ def partition_minimum(entries_to_partition):
             if relation_entry in entries:
                 partition_entries.append(relation_entry)
 
-        partition = BartezEntriesPartition(partition_entries)
+        partition = BartezPartitionEntriesNode(partition_entries)
         partitions.append(partition)
 
         # remove from entries

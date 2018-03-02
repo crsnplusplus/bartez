@@ -96,12 +96,12 @@ class TestBartezGraph(unittest.TestCase):
         crossword.clear_all_non_blocks()
 
         # A = 1, 2
-        test_entriesA = prepare_sub_entries(entries, subgraphs[0], u'A')
-        print_sub_crossword(crossword, test_entriesA)
+        test_entries_a = prepare_sub_entries(entries, subgraphs[0], u'A')
+        print_sub_crossword(crossword, test_entries_a)
 
         # B = 3, 4
-        test_entriesB = prepare_sub_entries(entries, subgraphs[1], u'B')
-        print_sub_crossword(crossword, test_entriesB)
+        test_entries_b = prepare_sub_entries(entries, subgraphs[1], u'B')
+        print_sub_crossword(crossword, test_entries_b)
 
         # 1
         test_entries1 = prepare_sub_entries(entries, subgraphs12[0], u'1')
