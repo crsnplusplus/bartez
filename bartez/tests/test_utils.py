@@ -46,7 +46,7 @@ def get_test_graph(crossword):
     return graph
 
 
-def print_test_subgraph_info(graph, name):
+def print_test_subgraph_info(_, name):
     print("\n* SubGraph info: " + name + "\n")
 
 
