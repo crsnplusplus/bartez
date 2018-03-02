@@ -30,3 +30,6 @@ var/
 
 # Python egg metadata, regenerated from source files by setuptools.
 /*.egg-info
+
+# Python notebooks checkpoints
+.ipynb_checkpoints

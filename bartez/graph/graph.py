@@ -1,30 +1,34 @@
-import bartez.graph.graph_utils as graph_utils
+import networkx as nx
+from networkx.algorithms.community.kernighan_lin import kernighan_lin_bisection
 
+class BartezGraph(nx.Graph):
+    def __init__(self, entries):
+        nx.Graph.__init__(self)
+        self.__entries = entries
+        self.__populate()
 
-class BartezGraph:
-    def __init__(self, crossword=None):
-        self.__crossword = crossword
-        self.__graph = None
-        self.__traverse_order = []
-        self.__create()
+    def __populate(self):
+        for index_entry, entry in enumerate(self.__entries):
+            self.add_node(index_entry, desc=str(entry.description()))
+            relations = entry.relations()
 
-    def get_nx_graph(self):
-        return self.__graph.copy()
-
-    def get_traverse_order(self):
-        return self.__traverse_order
-
-    def get_crossword(self):
-        return self.__crossword
+            for index_relation, relation in enumerate(relations):
+                self.add_edge(index_entry, relation.index())
 
     def get_entries(self):
-        return self.__crossword.entries()
+        return self.__entries
 
-    def __create(self):
-        entries = self.__crossword.entries()
+    def split_graph_kernighan_lin_bisection(self, graph):
+        sections = kernighan_lin_bisection(graph, max_iter=2)#max_iter=graph.number_of_nodes())
+        subgraphs = []
 
-        g, v, to = graph_utils.create_nx_graph_from_entries(entries)
+        for section_index, section in enumerate(sections):
+            subgraph = graph.subgraph(section).copy()
+            if nx.is_connected(subgraph):
+                subgraphs.append(subgraph)
+            else:
+                for c in nx.connected_components(subgraph):
+                    subgraphs.append(graph.subgraph(c).copy())
 
-        self.__graph = g
-        self.__num_of_vertex = v
-        self.__traverse_order = to
+        return subgraphs
+
