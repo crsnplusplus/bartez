@@ -4,20 +4,16 @@ from abc import ABCMeta, abstractmethod
 class BartezNodeVisitor(object):
     __metaclass__ = ABCMeta
 
-    def __get_distance_with_parent(self, node, parent_searched):
+    def get_distance_with_root(self, node):
         parent = node.get_parent()
 
         distance = 0
 
         while parent is not None:
             distance += 1
-
-            if parent == parent_searched:
-                return distance
-
             parent = parent.get_parent()
 
-        return -1
+        return distance
 
     @abstractmethod
     def visit_non_terminal(self, node):
@@ -34,10 +30,8 @@ class BartezNodeVisitorPrint(BartezNodeVisitor):
 
 
     def visit_non_terminal(self, node):
-        children = node.get_children()
-
-        for child in node.get_children():
-            child.accept(self)
+        for child in node.get_children().items():
+            child[1].accept(self)
 
 
     def visit_terminal(self, node):
@@ -59,13 +53,9 @@ class BartezNodeVisitorList(BartezNodeVisitor):
     def visit(self, node):
         node.accept(self)
 
-
     def visit_non_terminal(self, node):
-        children = node.get_children()
-
-        for child in node.get_children():
-            child.accept(self)
-
+        for child in node.get_children().items():
+            child[1].accept(self)
 
     def visit_terminal(self, node):
         parent = node.get_parent()
@@ -78,6 +68,70 @@ class BartezNodeVisitorList(BartezNodeVisitor):
 
         self.__list.append(word)
 
-
     def get_words(self):
         return self.__list
+
+
+class BartezNodeVisitorNodeCounter(BartezNodeVisitor):
+    def __init__(self):
+        self.__non_terminal_count = 0
+        self.__terminal_count = 0
+
+    def visit(self, node):
+        node.accept(self)
+
+
+    def visit_non_terminal(self, node):
+        self.__non_terminal_count += 1
+
+        for child in node.get_children().items():
+            child[1].accept(self)
+
+
+    def visit_terminal(self, node):
+        self.__terminal_count += 1
+
+
+    def get_terminal_count(self):
+        return self.__terminal_count
+
+
+    def get_non_terminal_count(self):
+        return self.__non_terminal_count
+
+    def get_nodes_count(self):
+        return self.__terminal_count + self.__non_terminal_count
+
+
+class BartezNodeVisitorWordMatch(BartezNodeVisitor):
+    def __init__(self, word):
+        self.__word = word.upper()
+        self.__matches = False
+
+    def get_word(self):
+        return self.__word
+
+    def matches(self):
+        return self.__matches
+
+
+    def visit(self, node):
+        node.accept(self)
+
+
+    def visit_non_terminal(self, node):
+        pos = self.get_distance_with_root(node)
+        children = node.get_children()
+
+        letter = '#' if pos == len(self.__word) else self.__word[pos]
+        assert(pos <= len(self.__word))
+
+        if letter not in children:
+            self.__matches = False
+            return
+
+        return children[letter].accept(self)
+
+
+    def visit_terminal(self, node):
+        self.__matches = True

@@ -27,7 +27,7 @@ class BartezTrie(object):
             return
 
         parent = self.__root
-        child = None
+
         for pos in range(len(word)):
             current_char = word[pos]
             child = parent.get_child(current_char)
