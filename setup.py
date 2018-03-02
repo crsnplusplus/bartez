@@ -25,7 +25,7 @@ setup(name='bartez',
       install_requires=[
           'networkx',
           'community_detect',
-          'matplotlib',
+          'plotty',
       ],
       test_suite='tests',
       entry_points={
