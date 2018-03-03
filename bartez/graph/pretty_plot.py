@@ -7,12 +7,11 @@ def pretty_plot_graph(graph, entries, color_h='rgb(255,255,255)', color_v='rgb(0
     pos = nx.kamada_kawai_layout(graph)
 
     node_colors = []
-    for entry in entries:
+    for node_index, node in enumerate(G.nodes()):
+        G.node[node]['pos'] = pos[node]
+        entry = entries[node]
         color = color_h if entry.is_horizontal() else color_v
         node_colors.append(color)
-
-    for node_index, node in enumerate(G.nodes()):
-        G.node[node]['pos'] = pos[node_index]
 
     edge_trace = Scatter(
         x=[],

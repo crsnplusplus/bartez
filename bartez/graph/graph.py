@@ -23,12 +23,12 @@ class BartezGraph(nx.Graph):
         subgraphs = []
 
         for section_index, section in enumerate(sections):
-            subgraph = graph.subgraph(section).copy()
+            subgraph = BartezGraph(graph.subgraph(section))
             if nx.is_connected(subgraph):
-                subgraphs.append(subgraph)
+                subgraphs.append(BartezGraph(subgraph))
             else:
                 for c in nx.connected_components(subgraph):
-                    subgraphs.append(graph.subgraph(c).copy())
+                    subgraphs.append(BartezGraph(graph.subgraph(c)))
 
         return subgraphs
 
