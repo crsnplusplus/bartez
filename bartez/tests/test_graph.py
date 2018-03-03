@@ -13,19 +13,18 @@ class TestBartezGraph(unittest.TestCase):
     def test_bartez_graph_create(self):
         crossword = test_utils.get_test_crossword()
         entries = crossword.get_entries()
-        btz = test_utils.get_test_graph(crossword)
-        pp = pretty_plot_graph(btz.copy(), entries)
+        graph = test_utils.get_test_graph(crossword)
+        pp = pretty_plot_graph(graph, entries)
         py.iplot(pp)
-
-        graph = btz
 
         sections = kernighan_lin_bisection(graph, max_iter=2)#max_iter=graph.number_of_nodes())
         subgraphs = []
 
         for section_index, section in enumerate(sections):
-            subgraph = nx.Graph(graph.subgraph(section))
+            subgraph = graph.subgraph(section)
+
             if nx.is_connected(subgraph):
-                subgraphs.append(btz.subgraph(subgraph))
+                subgraphs.append(graph.subgraph(subgraph))
             else:
                 for c in nx.connected_components(subgraph):
                     subgraphs.append(subgraph.subgraph(c))
@@ -33,6 +32,7 @@ class TestBartezGraph(unittest.TestCase):
         print(len(subgraphs))
         pp = pretty_plot_graph(copy(subgraphs[0]), entries)
         py.iplot(pp)
+
 
 if __name__ == '__main__':
     unittest.main()
