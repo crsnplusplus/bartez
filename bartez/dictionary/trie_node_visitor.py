@@ -130,7 +130,8 @@ class BartezNodeVisitorWordMatch(BartezNodeVisitor):
             self.__matches = False
             return
 
-        return children[letter].accept(self)
+        children[letter].accept(self)
+        return
 
 
     def visit_terminal(self, node):

@@ -1,6 +1,7 @@
 from bartez import boards
 from bartez.crossword import Crossworld, SquareValues
 from bartez.word_dictionary import Dictionary
+from bartez.dictionary.trie_serializer import *
 
 import networkx as nx
 from networkx.algorithms.community.kernighan_lin import kernighan_lin_bisection
@@ -21,6 +22,10 @@ def get_test_dictionary():
 def get_test_dictionary_1000():
     return Dictionary("italian", get_test_dictionary_path_1000())
 
+
+def get_serialized_trie():
+    trie_loaded = bartez_trie_load_from_file("bartez_trie.btt")
+    return trie_loaded
 
 def get_test_crossword():
     board, geometry = boards.get_default_board()

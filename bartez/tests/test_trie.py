@@ -2,6 +2,7 @@ import unittest
 
 from bartez.dictionary.trie import *
 from bartez.dictionary.trie_node_visitor import *
+from bartez.dictionary.trie_serializer import *
 from bartez.tests.test_utils import *
 
 test_trie = None
@@ -79,6 +80,12 @@ class TestBartezTrie(unittest.TestCase):
         found = match_visitor.matches()
         print("Word " + match_visitor.get_word() + " found: " + str(found))
         self.assertFalse(found)
+
+    def test_bartez_trie_serialize(self):
+        global test_trie
+        bartez_trie_save_to_file(test_trie, "bartez_trie.btt")
+        trie_loaded = bartez_trie_load_from_file("bartez_trie.btt")
+        self.assertTrue(trie_loaded is not None)
 
 
 if __name__ == '__main__':
