@@ -1,5 +1,5 @@
 import networkx as nx
-from networkx.algorithms.community.kernighan_lin import kernighan_lin_bisection
+
 
 class BartezGraph(nx.Graph):
     def __init__(self, entries):
@@ -9,26 +9,28 @@ class BartezGraph(nx.Graph):
 
     def __populate(self):
         for index_entry, entry in enumerate(self.__entries):
-            self.add_node(index_entry, desc=str(entry.description()))
+
+            self.add_node(index_entry, entry=entry, desc=str(entry.description()))
+
             relations = entry.relations()
 
             for index_relation, relation in enumerate(relations):
-                self.add_edge(index_entry, relation.index())
+                relation_index = relation.index()
+                self.add_edge(index_entry, relation_index)
 
     def get_entries(self):
         return self.__entries
 
-    def split_graph_kernighan_lin_bisection(self, graph):
-        sections = kernighan_lin_bisection(graph, max_iter=2)#max_iter=graph.number_of_nodes())
-        subgraphs = []
+    def to_edge_matrix(self):
+        # Initialize edge matrix
+        edge_mat = [[0 for _ in range(len(self))] for _ in range(len(self))]
 
-        for section_index, section in enumerate(sections):
-            subgraph = BartezGraph(graph.subgraph(section))
-            if nx.is_connected(subgraph):
-                subgraphs.append(BartezGraph(subgraph))
-            else:
-                for c in nx.connected_components(subgraph):
-                    subgraphs.append(BartezGraph(graph.subgraph(c)))
+        # For loop to set 0 or 1 ( diagonal elements are set to 1)
+        for node in self:
+            tmp_neighbor_list = self.neighbors(node)
 
-        return subgraphs
+            for neighbor in tmp_neighbor_list:
+                edge_mat[node][neighbor] = 1
+                edge_mat[node][node] = 1
 
+        return edge_mat

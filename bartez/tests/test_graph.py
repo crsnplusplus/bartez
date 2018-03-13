@@ -30,8 +30,8 @@ class TestBartezGraph(unittest.TestCase):
                     subgraphs.append(subgraph.subgraph(c))
 
         print(len(subgraphs))
-        pp = pretty_plot_graph(copy(subgraphs[0]), entries)
-        py.iplot(pp)
+        #pp = pretty_plot_graph(copy(subgraphs[0]), entries)
+        #py.iplot(pp)
 
 
 if __name__ == '__main__':

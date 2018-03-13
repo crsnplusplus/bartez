@@ -24,9 +24,10 @@ setup(name='bartez',
       packages=['bartez'],
       install_requires=[
           'networkx',
-          'community_detect',
+          'sklearn',
+          'numpy',
           'plotly',
-          'graphviz',
+          'matplotlib',
       ],
       test_suite='tests',
       entry_points={
