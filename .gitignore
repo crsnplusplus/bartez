@@ -33,3 +33,6 @@ var/
 
 # Python notebooks checkpoints
 .ipynb_checkpoints
+
+# Bartez specifics:
+bartez_trie.btt
