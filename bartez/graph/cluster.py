@@ -42,6 +42,10 @@ class BartezClusterContainer(nx.Graph):
             self.make_clusters()
 
 
+    def get_root_graph(self):
+        return self.__btz_graph
+
+
     def get_clusters(self):
         clusters = []
         for node in self.nodes():
@@ -75,6 +79,17 @@ class BartezClusterContainer(nx.Graph):
         return clusters_nodes
 
 
+    def __print_clusters(self):
+        clusters = self.get_clusters()
+
+        for cluster_index, bartez_cluster in enumerate(clusters):
+            cluster_nodes = bartez_cluster.nodes()
+            print("cluster # " + str(cluster_index))
+            for node in cluster_nodes:
+                entry = self.__btz_entries[node]
+                print("  " + str(node) + " (" + entry.description() + ")")
+
+
     def make_clusters(self):
         cluster_model_result = self.__create_clusters_spectral()
         clusters_nodes = self.__create_clusters_nodes(cluster_model_result)
@@ -89,10 +104,13 @@ class BartezClusterContainer(nx.Graph):
 
             cluster_as_bon = nodes_as_np_array[cluster_nodes]
             self.add_node(cluster_nodes_index,
+                          desc=str(cluster_nodes_index),
                           cluster_bartez=BartezCluster(cluster_entries),
                           cluster_graph=self.__btz_graph.subgraph(cluster_as_bon))
 
-        self.__make_clusters_edges()
+        self.__print_clusters()
+        self.__print_clusters_edges()
+        self.__create_clusters_edges()
 
 
     def __get_relations_as_entries(self, node, entries):
@@ -115,13 +133,13 @@ class BartezClusterContainer(nx.Graph):
         return relations_as_entries_index
 
 
-    def __make_clusters_edges(self):
+    def __print_clusters_edges(self):
         clusters = self.get_clusters()
 
         print("\n")
 
-        for cluster_index, bcluster in enumerate(clusters):
-            cluster_nodes = bcluster.nodes()
+        for cluster_index, bartez_cluster in enumerate(clusters):
+            cluster_nodes = bartez_cluster.nodes()
 
             for node in cluster_nodes:
                 relations_as_entries_index = self.__get_relations_as_entries_index(node, self.__btz_entries)
@@ -129,8 +147,6 @@ class BartezClusterContainer(nx.Graph):
                 for cluster_other_index, cluser_other in enumerate(clusters):
                     if cluster_index == cluster_other_index:
                         continue
-
-
 
                     other_entries_index = [n for n in cluser_other.nodes()]
                     common_nodes = [r for r in relations_as_entries_index if r in other_entries_index]
@@ -147,3 +163,28 @@ class BartezClusterContainer(nx.Graph):
                         print ("  " + str(node) + " ("+entry.description()+") -> "
                                     + str(common_node) + " ("+common_entry.description()+")")
                     print("\n")
+
+
+    def __create_clusters_edges(self):
+        clusters = self.get_clusters()
+
+        for cluster_index, bartez_cluster in enumerate(clusters):
+            cluster_nodes = bartez_cluster.nodes()
+
+            for node_index, node in enumerate(cluster_nodes):
+                relations_as_entries_index = self.__get_relations_as_entries_index(node, self.__btz_entries)
+
+                for cluster_other_index, cluster_other in enumerate(clusters):
+                    if cluster_index == cluster_other_index:
+                        continue
+
+                    other_entries_index = [n for n in cluster_other.nodes()]
+                    common_nodes = [r for r in relations_as_entries_index if r in other_entries_index]
+                    if len(common_nodes) == 0:
+                        # skipping, no common nodes
+                        continue
+
+                    for common_node in np.array(common_nodes):
+                        self.add_edge(cluster_index, cluster_other_index,
+                                      bartez_source=node,
+                                      bartez_target=common_node)
