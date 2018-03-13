@@ -49,11 +49,7 @@ class BartezClusterContainer(nx.Graph):
         return clusters
 
 
-    def make_clusters(self):
-        # entries_as_np_array, from np to select a list from another: list = list1[list2]
-        entries_as_np_array = np.array(self.__btz_entries)
-        nodes_as_np_array = np.array(self.__btz_graph.nodes())
-
+    def __create_clusters_spectral(self):
         sparse_matrix = nx.to_scipy_sparse_matrix(self.__btz_graph)
         spectral = cluster.SpectralClustering(n_clusters=self.__clusters_count,
                                               affinity="precomputed",
@@ -61,7 +57,10 @@ class BartezClusterContainer(nx.Graph):
                                               degree=self.__degree)
         spectral.fit(sparse_matrix)
         cluster_model_result = spectral.labels_
+        return cluster_model_result
 
+
+    def __create_clusters_nodes(self, cluster_model_result):
         clusters_nodes = []
         # reshaping results to fit in clusters_nodes
         for result_index, cluster_index in enumerate(cluster_model_result):
@@ -73,6 +72,16 @@ class BartezClusterContainer(nx.Graph):
             #end if
             clusters_nodes[cluster_index].append(result_index)
         #end for
+        return clusters_nodes
+
+
+    def make_clusters(self):
+        cluster_model_result = self.__create_clusters_spectral()
+        clusters_nodes = self.__create_clusters_nodes(cluster_model_result)
+
+        # entries_as_np_array, from np to select a list from another: list = list1[list2]
+        entries_as_np_array = np.array(self.__btz_entries)
+        nodes_as_np_array = np.array(self.__btz_graph.nodes())
 
         # creating nodes containing a BartezCluster
         for cluster_nodes_index, cluster_nodes in enumerate(clusters_nodes):
@@ -86,30 +95,55 @@ class BartezClusterContainer(nx.Graph):
         self.__make_clusters_edges()
 
 
+    def __get_relations_as_entries(self, node, entries):
+        relations_as_entries = []
+        entry = entries[node]
+        relations = entry.get_relations()
+        for relation in relations:
+            relation_entry_index = relation.get_index()
+            relations_as_entries.append(entries[relation_entry_index])
+        return relations_as_entries
+
+
+    def __get_relations_as_entries_index(self, node, entries):
+        relations_as_entries_index = []
+        entry = entries[node]
+        relations = entry.get_relations()
+        for relation in relations:
+            relation_entry_index = relation.get_index()
+            relations_as_entries_index.append(relation_entry_index)
+        return relations_as_entries_index
+
+
     def __make_clusters_edges(self):
-        btz_nodes = self.__btz_graph.nodes()
         clusters = self.get_clusters()
 
-        for cluster in clusters:
-            cluster_nodes = cluster.nodes()
+        print("\n")
 
-            for cluster2 in clusters:
-                if cluster == cluster2:
-                    continue
+        for cluster_index, bcluster in enumerate(clusters):
+            cluster_nodes = bcluster.nodes()
 
-            cluster_nodes2 = cluster.nodes()
-            pass
+            for node in cluster_nodes:
+                relations_as_entries_index = self.__get_relations_as_entries_index(node, self.__btz_entries)
+
+                for cluster_other_index, cluser_other in enumerate(clusters):
+                    if cluster_index == cluster_other_index:
+                        continue
 
 
-        pass
 
-            # for entry_index, entry in enumerate(nodes):
-            #     relations = entry.relations()
-            #
-            #     for index_relation, relation in enumerate(relations):
-            #         relation_index = relation.index()
-            #         if relation_index in
-            #         self.add_edge(entry_index, relation_index)
-            #
-            # for node in self.nodes():
-            #     node['cluster']
+                    other_entries_index = [n for n in cluser_other.nodes()]
+                    common_nodes = [r for r in relations_as_entries_index if r in other_entries_index]
+                    if len(common_nodes) == 0:
+                        # skipping, no common nodes
+                        continue
+
+                    print("node " + str(node) + " in cluster (" + str(cluster_index) + ") "
+                          "has edge(s) with another cluster (" + str(cluster_other_index) + ")")
+
+                    for common_node in common_nodes:
+                        entry = self.__btz_entries[node]
+                        common_entry = self.__btz_entries[common_node]
+                        print ("  " + str(node) + " ("+entry.description()+") -> "
+                                    + str(common_node) + " ("+common_entry.description()+")")
+                    print("\n")
