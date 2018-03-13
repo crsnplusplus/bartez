@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
 
-class BartezNodeVisitor(object):
+class BartezDictionaryTrieNodeVisitor(object):
     __metaclass__ = ABCMeta
 
     def get_distance_with_root(self, node):
@@ -24,7 +24,7 @@ class BartezNodeVisitor(object):
         pass
 
 
-class BartezNodeVisitorPrint(BartezNodeVisitor):
+class BartezDictionaryTrieNodeVisitorPrint(BartezDictionaryTrieNodeVisitor):
     def visit(self, node):
         node.accept(self)
 
@@ -46,7 +46,7 @@ class BartezNodeVisitorPrint(BartezNodeVisitor):
         print("found word: " + word)
 
 
-class BartezNodeVisitorList(BartezNodeVisitor):
+class BartezDictionaryTrieNodeVisitorList(BartezDictionaryTrieNodeVisitor):
     def __init__(self):
         self.__list = []
 
@@ -72,7 +72,7 @@ class BartezNodeVisitorList(BartezNodeVisitor):
         return self.__list
 
 
-class BartezNodeVisitorNodeCounter(BartezNodeVisitor):
+class BartezDictionaryTrieNodeVisitorNodeCounter(BartezDictionaryTrieNodeVisitor):
     def __init__(self):
         self.__non_terminal_count = 0
         self.__terminal_count = 0
@@ -103,7 +103,7 @@ class BartezNodeVisitorNodeCounter(BartezNodeVisitor):
         return self.__terminal_count + self.__non_terminal_count
 
 
-class BartezNodeVisitorWordMatch(BartezNodeVisitor):
+class BartezDictionaryTrieNodeVisitorWordMatch(BartezDictionaryTrieNodeVisitor):
     def __init__(self, word):
         self.__word = word.upper()
         self.__matches = False

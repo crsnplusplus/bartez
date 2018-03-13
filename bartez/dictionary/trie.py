@@ -1,7 +1,7 @@
-from bartez.dictionary.trie_node import BartezNodeTerminal, BartezNodeNonTerminal
+from bartez.dictionary.trie_node import BartezDictionaryTrieNodeTerminal, BartezDictionaryTrieNodeNonTerminal
 
 
-class BartezTrie(object):
+class BartezDictionaryTrie(object):
     """Bartez trie, used by dictionary"""
 
     def __init__(self, language, file):
@@ -32,18 +32,18 @@ class BartezTrie(object):
             current_char = word[pos]
             child = parent.get_child(current_char)
             if child is None:
-                child = BartezNodeNonTerminal(parent, current_char)
+                child = BartezDictionaryTrieNodeNonTerminal(parent, current_char)
                 parent.add_child(child)
 
             parent = child
 
         if parent.has_terminal() is False:
-            child = BartezNodeTerminal(parent)
+            child = BartezDictionaryTrieNodeTerminal(parent)
             parent.add_child(child)
 
     def __load(self):
         if self.__root is None:
-            self.__root = BartezNodeNonTerminal(None, '')
+            self.__root = BartezDictionaryTrieNodeNonTerminal(None, '')
 
         first = '0'
 

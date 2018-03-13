@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
 
-class BartezTrieNode(object):
+class BartezDictionaryTrieNode(object):
     __metaclass__ = ABCMeta
 
     """Trie Node used by BartezTrie class"""
@@ -23,10 +23,10 @@ class BartezTrieNode(object):
         pass
 
 
-class BartezNodeNonTerminal(BartezTrieNode):
+class BartezDictionaryTrieNodeNonTerminal(BartezDictionaryTrieNode):
     """Trie Node Non Terminal used by BartezTrie class"""
     def __init__(self, parent, char):
-        BartezTrieNode.__init__(self, parent, char)
+        BartezDictionaryTrieNode.__init__(self, parent, char)
         self.__children = { }
 
 
@@ -54,10 +54,10 @@ class BartezNodeNonTerminal(BartezTrieNode):
         self.__children[child.get_char()] = child
 
 
-class BartezNodeTerminal(BartezTrieNode):
+class BartezDictionaryTrieNodeTerminal(BartezDictionaryTrieNode):
     """Trie Node Terminal used by BartezTrie class"""
     def __init__(self, parent):
-        BartezTrieNode.__init__(self, parent, '#')
+        BartezDictionaryTrieNode.__init__(self, parent, '#')
 
     def accept(self, visitor):
         visitor.visit_terminal(self)
