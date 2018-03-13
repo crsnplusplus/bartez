@@ -35,7 +35,6 @@ def get_test_crossword():
 def get_test_graph(crossword):
     graph = nx.Graph()
     entries = crossword.entries()
-    # #num_of_vertex = len(entries)
 
     for index_entry, entry in enumerate(entries):
         graph.add_node(index_entry, desc=str(entry.description()))
@@ -46,7 +45,7 @@ def get_test_graph(crossword):
     return graph
 
 
-def print_test_subgraph_info(graph, name):
+def print_test_subgraph_info(_, name):
     print("\n* SubGraph info: " + name + "\n")
 
 

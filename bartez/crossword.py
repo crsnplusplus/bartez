@@ -40,18 +40,23 @@ class Square:
         self.__value = value
         self.__point = [x, y]
 
+
     def is_block(self):
         return self.__value == SquareValues.block
+
 
     def set_coordinates(self, coordinates):
         self.__point[0] = coordinates[0]
         self.__point[1] = coordinates[1]
 
+
     def get_coordinates(self):
         return self.__point[0]
 
+
     def set_neighbour(self, direction, neighbour):
         self.__neighbours[directions_to_index(direction)] = neighbour
+
 
     def set_neighbours(self, up, down, left, right):
         self.__neighbours[directions_to_index(Direction.up)] = up
@@ -59,15 +64,19 @@ class Square:
         self.__neighbours[directions_to_index(Direction.left)] = left
         self.__neighbours[directions_to_index(Direction.right)] = right
 
+
     def get_neighbour(self, direction):
         d = directions_to_index(direction)
         return self.__neighbours[d]
 
+
     def set_value(self, value):
         self.__value = value
 
+
     def get_value(self):
         return self.__value
+
 
     def count_squares_to_block(self, direction):
         count = 0
@@ -93,14 +102,17 @@ class Crossworld:
         self.__intersections = []
         self.set_geometry(rows, columns)
 
+
     def set_geometry(self, rows, columns):
         self.__rows = rows
         self.__columns = columns
         self.__grid = [[Square() for _ in range(columns)] for _ in range(rows)]
 
+
     def set_value(self, row, column, value):
         #  print "row: ", row, " column: ", column, " value: ", value
         self.__grid[row][column] = Square(row, column, value)
+
 
     def set_value_from_entry(self, entry):
         for i, char in enumerate(list(entry.value())):
@@ -109,8 +121,10 @@ class Crossworld:
             self.__grid[row][col].set_value(char)
         return
 
+
     def get_value(self, row, column):
         return self.__grid[row][column].get_value()
+
 
     def set_blocks(self, blocks):
         for block in blocks:
@@ -125,6 +139,7 @@ class Crossworld:
 
             self.__grid[r][c].set_value(Square(r, c, SquareValues.block))
 
+
     def set_entries(self, entries):
         self.__entries = entries
 
@@ -134,14 +149,17 @@ class Crossworld:
                 continue
             self.set_value_from_entry(entry)
 
-    def     get_entries(self):
+
+    def get_entries(self):
         return self.__entries
+
 
     def clear_all_non_blocks(self):
         for square_column in self.__grid:
             for square in square_column:
                 if square.is_block() is False:
                     square.set_value(SquareValues.char)
+
 
     def print_crossword(self):
         print('')
@@ -164,6 +182,7 @@ class Crossworld:
 
         print('')
 
+
     def __update_neighbours(self):
         for r in range(0, self.__rows):
             for c in range(0, self.__columns):
@@ -183,6 +202,7 @@ class Crossworld:
                     left = self.__grid[r][c-1]
 
                 square.set_neighbours(up, down, left, right)
+
 
     def __update_entries(self):
         entries_count = 0
@@ -226,6 +246,7 @@ class Crossworld:
 
         return len(self.__entries)
 
+
     @staticmethod
     def __get_entry_domain(entry):
         if entry.horizontal():
@@ -233,6 +254,7 @@ class Crossworld:
         else:
             entry_domain = [Coordinate(entry.x() + i, entry.y()) for i in range(entry.length())]
         return entry_domain
+
 
     def __update_entries_relations(self):
         entries_count = len(self.__entries)
@@ -272,8 +294,10 @@ class Crossworld:
         self.__intersections = intersection_matrix
         return
 
+
     def __get_intersection(self, index_entry, index_other):
         return self.__intersections[index_entry][index_other]
+
 
     def __print_neighbours(self):
         for r in range(0, self.__rows):
@@ -285,19 +309,23 @@ class Crossworld:
                 print("  down", square.get_neighbour(Direction.down))
                 print("  left", square.get_neighbour(Direction.left))
 
+
     def __print_entries(self):
         for index, entry in enumerate(self.__entries):
             print(index, ": ", entry.get_description())
         return
 
+
     def __print_entries_relations(self):
         return
+
 
     def prepare(self):
         self.__update_neighbours()
         self.__update_entries()
         self.__update_entries_relations()
         return
+
 
     def print_info(self):
         #print "*** Neighbours ***"

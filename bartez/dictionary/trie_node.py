@@ -27,7 +27,7 @@ class BartezNodeNonTerminal(BartezTrieNode):
     """Trie Node Non Terminal used by BartezTrie class"""
     def __init__(self, parent, char):
         BartezTrieNode.__init__(self, parent, char)
-        self.__children = []
+        self.__children = { }
 
 
     def get_children(self):
@@ -39,19 +39,10 @@ class BartezNodeNonTerminal(BartezTrieNode):
 
 
     def get_child(self, char):
-        for child in self.__children:
-            if child.get_char() == char:
-                return child
-
-        return None
-
+        return self.__children[char] if char in self.__children else None
 
     def has_terminal(self):
-        for child in self.__children:
-            if child.get_char() == '#':
-                return True
-
-        return False
+        return True if self.get_child('#') is not None else False
 
 
     def has_children(self):
@@ -60,7 +51,7 @@ class BartezNodeNonTerminal(BartezTrieNode):
 
     def add_child(self, child):
         assert(self.get_child(child.get_char()) is None)
-        self.__children.append(child)
+        self.__children[child.get_char()] = child
 
 
 class BartezNodeTerminal(BartezTrieNode):
