@@ -6,27 +6,17 @@ from sklearn import cluster
 from bartez.graph.graph import BartezGraph
 
 
-class BartezCluster(BartezGraph):
+class BartezClusterNode(BartezGraph):
     def __init__(self, entries):
         BartezGraph.__init__(self, entries)
+        self.__is_solved = False
 
-    def get_unsatisfied_edges(self):
-        unsatisfied_edges = []
+    def is_solved(self):
+        return self.__is_solved
 
-        for entry in self.get_entries():
-            relations = entry.relations()
+    def set_solved(self, solved):
+        self.__is_solved = solved
 
-            for relation_pos, relation in enumerate(relations):
-                relation_entry_index = relation.index()
-                cluster_nodes = self.nodes()
-
-                if relation_entry_index in cluster_nodes:
-                    continue
-
-                # satisfied / unsatisfied
-                unsatisfied_edges.append(relation.index())
-
-        pass
 
 class BartezClusterContainer(nx.Graph):
     def __init__(self, entries, clusters_count, make_clusters=True, n_init=200, degree=20):
@@ -47,10 +37,23 @@ class BartezClusterContainer(nx.Graph):
 
 
     def get_clusters(self):
-        clusters = []
+        bartez_clusters = []
         for node in self.nodes():
-            clusters.append(self.nodes[node]['cluster_graph'])
-        return clusters
+            bartez_clusters.append(self.nodes[node]['cluster_graph'])
+        return bartez_clusters
+
+
+    def find_entry(self, entry_to_search):
+        bartez_clusters = self.get_clusters()
+
+        for cluster_index, bartez_cluster in enumerate(bartez_clusters):
+            cluster_nodes = bartez_cluster.nodes()
+
+            for node in cluster_nodes:
+                entry = self.__btz_entries[node]
+                if entry is entry_to_search:
+                    return cluster_index
+        return None
 
 
     def __create_clusters_spectral(self):
@@ -98,14 +101,13 @@ class BartezClusterContainer(nx.Graph):
         entries_as_np_array = np.array(self.__btz_entries)
         nodes_as_np_array = np.array(self.__btz_graph.nodes())
 
-        # creating nodes containing a BartezCluster
+        # creating nodes containing a BartezClusterNode
         for cluster_nodes_index, cluster_nodes in enumerate(clusters_nodes):
             cluster_entries = entries_as_np_array[cluster_nodes]
-
             cluster_as_bon = nodes_as_np_array[cluster_nodes]
             self.add_node(cluster_nodes_index,
-                          desc=str(cluster_nodes_index),
-                          cluster_bartez=BartezCluster(cluster_entries),
+                          desc="Cluster " + str(cluster_nodes_index),
+                          cluster_bartez=BartezClusterNode(cluster_entries),
                           cluster_graph=self.__btz_graph.subgraph(cluster_as_bon))
 
         self.__print_clusters()
@@ -134,17 +136,17 @@ class BartezClusterContainer(nx.Graph):
 
 
     def __print_clusters_edges(self):
-        clusters = self.get_clusters()
+        bartez_clusters = self.get_clusters()
 
         print("\n")
 
-        for cluster_index, bartez_cluster in enumerate(clusters):
+        for cluster_index, bartez_cluster in enumerate(bartez_clusters):
             cluster_nodes = bartez_cluster.nodes()
 
             for node in cluster_nodes:
                 relations_as_entries_index = self.__get_relations_as_entries_index(node, self.__btz_entries)
 
-                for cluster_other_index, cluser_other in enumerate(clusters):
+                for cluster_other_index, cluser_other in enumerate(bartez_clusters):
                     if cluster_index == cluster_other_index:
                         continue
 
