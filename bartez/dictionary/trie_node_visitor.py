@@ -139,39 +139,55 @@ class BartezDictionaryTrieNodeVisitorMatchWord(BartezDictionaryTrieNodeVisitor):
 
 
 class BartezDictionaryTrieNodeVisitorMatchPattern(BartezDictionaryTrieNodeVisitor):
-    def __init__(self, word):
-        self.__word = word.upper()
-        self.__matches = False
+    def __init__(self, pattern=''):
+        self.__pattern = pattern
+        self.__matches = []
 
-    def get_word(self):
-        return self.__word
+    def set_pattern(self, pattern):
+        self.__matches.clear()
+        self.__pattern = pattern.upper()
 
-    def matches(self):
+    def get_pattern(self):
+        return self.__pattern
+
+    def get_matches(self):
         return self.__matches
-
 
     def visit(self, node):
         node.accept(self)
-
 
     def visit_non_terminal(self, node):
         pos = self.get_distance_with_root(node)
         children = node.get_children()
 
-        letter = '#' if pos == len(self.__word) else self.__word[pos]
-        assert(pos <= len(self.__word))
+        letter = '#' if pos == len(self.__pattern) else self.__pattern[pos]
+        assert(pos <= len(self.__pattern))
+
+        if letter is '.':
+            # continue for every child
+            for child in children:
+                children[child].accept(self)
 
         if letter not in children:
-            self.__matches = False
+            # not found!
             return
 
+        # so far, so good. continue ...
         children[letter].accept(self)
         return
 
-
     def visit_terminal(self, node):
-        self.__matches = True
+        self.__add_word_to_matches(node)
 
+    def __add_word_to_matches(self, terminal_node):
+        current_node = terminal_node.get_parent()
+        word = ""
+
+        while current_node is not None:
+            word = current_node.get_char() + word
+            current_node = current_node.get_parent()
+
+        self.__matches.append(word)
 
 class BartezDictionaryTrieNodeVisitorPageSplitter(BartezDictionaryTrieNodeVisitor):
     def __init__(self):

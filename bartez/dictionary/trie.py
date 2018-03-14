@@ -1,8 +1,10 @@
+from abc import ABCMeta, abstractmethod
+
 from bartez.dictionary.trie_node import BartezDictionaryTrieNodeTerminal, BartezDictionaryTrieNodeNonTerminal
 
 
 class BartezDictionaryTrie(object):
-    """Bartez trie, used by dictionary"""
+    __metaclass__ = ABCMeta
 
     def __init__(self, language):
         self.__language = language
@@ -17,6 +19,7 @@ class BartezDictionaryTrie(object):
     def is_loaded(self):
         return self.__root is not None
 
+    @abstractmethod
     def add_word(self, word):
         parent = self.__root
 

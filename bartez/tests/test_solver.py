@@ -3,15 +3,22 @@ import unittest
 import bartez.tests.test_utils as test_utils
 from bartez.graph.cluster import BartezClusterContainer
 from bartez.solver.container_solver import BartezClusterContainerSolver
+from bartez.solver.solver_observer import BartezSolverObserverPrintCrossword
+from bartez.dictionary.trie_serializer import deserialize_pattern_matcher
 
 class TestBartezSolver(unittest.TestCase):
-    def test_bartez_solver_create_graph(self):
+
+    def test_bartez_solver_solve_with_trie(self):
+
         crossword = test_utils.get_test_crossword()
-        entries = crossword.get_entries()
-        dictionary = test_utils.get_serialized_trie()
-        #dictionary = BartezTrie('italian', test_utils.get_test_dictionary_path_1000())
-        #dictionary = test_utils.get_test_dictionary()
-        container = BartezClusterContainer(entries, 8)
-        solver = BartezClusterContainerSolver(dictionary, crossword, container)
+        container = BartezClusterContainer(crossword.get_entries(), 1)
+        entries_as_dict = crossword.get_entries_as_dict()
+        print_observer = BartezSolverObserverPrintCrossword(crossword)
+
+        matcher = deserialize_pattern_matcher("matcher.dat")
+
+        solver = BartezClusterContainerSolver(entries_as_dict, container, matcher)
+        solver.register_observer(print_observer)
+
         solver.run()
         return

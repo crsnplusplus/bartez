@@ -79,7 +79,15 @@ class BartezClusterContainer(nx.Graph):
             #end if
             clusters_nodes[cluster_index].append(result_index)
         #end for
-        return clusters_nodes
+
+        clusters_dict = {}
+        for result_index, cluster_index in enumerate(cluster_model_result):
+            if cluster_index not in clusters_dict:
+                clusters_dict[cluster_index] = []
+
+            clusters_dict[cluster_index].append(result_index)
+
+        return clusters_dict
 
 
     def __print_clusters(self):
@@ -103,8 +111,8 @@ class BartezClusterContainer(nx.Graph):
 
         # creating nodes containing a BartezClusterNode
         for cluster_nodes_index, cluster_nodes in enumerate(clusters_nodes):
-            cluster_entries = entries_as_np_array[cluster_nodes]
-            cluster_as_bon = nodes_as_np_array[cluster_nodes]
+            cluster_entries = entries_as_np_array[clusters_nodes[cluster_nodes_index]]
+            cluster_as_bon = nodes_as_np_array[clusters_nodes[cluster_nodes_index]]# bon = bunch of nodes
 
             bartez_cluster_node = BartezClusterNode(cluster_entries)
             bartez_subgraph = self.__btz_graph.subgraph(cluster_as_bon)

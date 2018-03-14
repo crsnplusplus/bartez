@@ -36,3 +36,4 @@ var/
 
 # Bartez specifics:
 bartez_trie.btt
+matcher.dat

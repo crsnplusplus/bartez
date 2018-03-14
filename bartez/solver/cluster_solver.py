@@ -2,22 +2,33 @@ import networkx as nx
 
 from copy import copy
 
-from bartez.utils_solver import get_pattern, get_matches, are_there_enough_matches, get_entries_intersection
+from bartez.solver.solver_observer import BartezObservable
+from bartez.utils_solver import get_pattern, are_there_enough_matches, get_entries_intersection
 
 
-class BartezClusterSolver:
-    def __init__(self, dictionary=None, entries=None, graph=None):
-        self.__dictionary = dictionary
+class BartezClusterSolver(BartezObservable):
+    def __init__(self, index, matcher=None, entries=None, container_entries=None ,graph=None):
+        BartezObservable.__init__(self)
+        self.__index = index,
+        self.__matcher = matcher
         self.__entries = entries
+        self.__container_entries = container_entries
         self.__graph = graph
         self.__traverse_order = []
         self.__first_entry_index = 0
+        return
 
-    def set_dictionary(self, dictionary):
-        self.__dictionary = dictionary
+    def get_index(self):
+        return self.__index
+
+    def set_matcher(self, matcher):
+        self.__matcher = matcher
 
     def set_entries(self, entries):
         self.__entries = entries
+
+    def set_container_entries(self, container_entries):
+        self.__container_entries = container_entries
 
     def set_graph(self, graph):
         self.__graph = graph
@@ -30,7 +41,7 @@ class BartezClusterSolver:
 
     def run(self):
         self.__traverse_order = self.__get_traverse_order()
-        self.__solve_backtracking(self.__entries)
+        self.__solve_backtracking(self.__container_entries)
 
     def __get_first_entry(self):
         start = self.__first_entry_index
@@ -38,11 +49,46 @@ class BartezClusterSolver:
         return start
 
     def __get_traverse_order(self):
-        bfs = nx.dfs_tree(self.__graph, self.__get_first_entry())
-        bfs_to = list(nx.dfs_preorder_nodes(bfs))
-        return bfs_to
+        #dfs = nx.dfs_tree(self.__graph, self.__get_first_entry())
+        dfs = nx.dfs_tree(self.__graph)
+        dfs_to = list(nx.dfs_preorder_nodes(dfs))
+        return dfs_to
 
     def __solve_backtracking(self, entries):
+        self.notify_observers(entries)
+
+        traverse_order = self.__traverse_order
+
+        for position in traverse_order:
+            entry = entries[position]
+
+            if entry.valid() is True:
+                continue
+
+            entry_absoulte_index = entry.absolute_index()
+            pattern = get_pattern(entry_absoulte_index, entries)
+            matches = self.__matcher.get_matches(pattern)
+            # matches = get_matches(self.__dictionary, pattern, used_words)
+
+            entries_copy = copy(entries)
+            entry_copy = entries_copy[entry_absoulte_index]
+
+            for match in matches:
+                # trying a match
+                entry_copy.set_value(match)
+                entry_copy.set_is_valid(True)
+
+                if self.__solve_backtracking(entries_copy):
+                    return True
+
+                entry_copy.set_is_valid(False)
+                continue
+
+            return False  # backtracking
+
+        return True
+
+    def __solve_backtracking_old(self, entries):
         traverse_order = self.__traverse_order
         used_words = []
         for position, entry_index in enumerate(traverse_order):
@@ -54,7 +100,8 @@ class BartezClusterSolver:
                 continue
 
             pattern = get_pattern(entry_index, entries)
-            matches = get_matches(self.__dictionary, pattern, used_words)
+            matches = self.__matcher.get_matches(pattern)
+            # matches = get_matches(self.__dictionary, pattern, used_words)
 
             entries_copy = copy(entries)
             entry_copy = entries_copy[entry_index]
@@ -66,11 +113,11 @@ class BartezClusterSolver:
                 used_words_copy = copy(used_words)
                 used_words_copy.append(match)
 
-                if self.__forward_check(self.__dictionary,
-                                        used_words_copy,
-                                        entry_index,
-                                        entries_copy) == False:
-                    continue
+                #                if self.__forward_check(self.__dictionary,
+                #                                        used_words_copy,
+                #                                        entry_index,
+                #                                        entries_copy) == False:
+                #                    continue
 
                 used_words.append(match)
 

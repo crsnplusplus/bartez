@@ -51,6 +51,7 @@ class Entry:
         self.__value = '.' * length
         self.__relations = []
         self.__description = ""
+        self.__absolute_index = -1
 
     def set_coordinate(self, coordinate):
         self.__coordinate = coordinate
@@ -118,6 +119,12 @@ class Entry:
     def add_relation(self, relation):
         self.__relations.append(relation)
 
+    def set_absolute_index(self, index):
+        self.__absolute_index = index
+
+    def get_absolute_index(self):
+        return self.__absolute_index
+
     coordinate = get_coordinate
     relations = get_relations
     x = get_coordinate_x
@@ -130,3 +137,4 @@ class Entry:
     valid = is_valid
     value = get_value
     description = get_description
+    absolute_index = get_absolute_index

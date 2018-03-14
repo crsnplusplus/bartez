@@ -153,6 +153,12 @@ class Crossworld:
     def get_entries(self):
         return self.__entries
 
+    def get_entries_as_dict(self):
+        entries_as_dict = {}
+        for single_entry in self.__entries:
+            entries_as_dict[single_entry.absolute_index()] = single_entry
+        return entries_as_dict
+
 
     def clear_all_non_blocks(self):
         for square_column in self.__grid:
@@ -233,6 +239,7 @@ class Crossworld:
                     number = entries_count
                     entry = Entry(coordinate, orientation, number, length)
                     entry.set_description(str(number) + " Horizontal")
+                    entry.set_absolute_index(len(self.__entries))
                     self.__entries.append(entry)
 
                 if is_vertical is True:
@@ -242,6 +249,7 @@ class Crossworld:
                     number = entries_count
                     entry = Entry(coordinate, orientation, number, length)
                     entry.set_description(str(number) + " Vertical")
+                    entry.set_absolute_index(len(self.__entries))
                     self.__entries.append(entry)
 
         return len(self.__entries)
