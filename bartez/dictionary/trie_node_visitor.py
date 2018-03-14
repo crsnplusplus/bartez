@@ -136,3 +136,41 @@ class BartezDictionaryTrieNodeVisitorWordMatch(BartezDictionaryTrieNodeVisitor):
 
     def visit_terminal(self, node):
         self.__matches = True
+
+
+class BartezDictionaryTrieNodeVisitorPageSplitter(BartezDictionaryTrieNodeVisitor):
+    def __init__(self):
+        self.__pages = {}
+
+    def get_page_number(self, number):
+        return self.__pages[number]
+
+    def visit(self, node):
+        node.accept(self)
+
+    def visit_non_terminal(self, node):
+        for child in node.get_children().items():
+            child[1].accept(self)
+
+    def visit_terminal(self, node):
+        parent = node.get_parent()
+
+        word = ""
+
+        while parent is not None:
+            word = parent.get_char() + word
+            parent = parent.get_parent()
+
+        page_number = len(word)
+        pos = self.get_distance_with_root(node)
+        assert(page_number == pos - 1) # without the terminator!
+
+        if page_number not in self.__pages:
+            self.__pages[page_number] = []
+
+        page = self.__pages[page_number]
+        page.append(word)
+        self.__pages[page_number] = page
+
+    def get_pages(self):
+        return self.__pages
