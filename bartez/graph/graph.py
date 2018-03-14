@@ -8,15 +8,16 @@ class BartezGraph(nx.Graph):
         self.__populate()
 
     def __populate(self):
-        for index_entry, entry in enumerate(self.__entries):
+        for entry_index, entry in enumerate(self.__entries):
 
-            self.add_node(index_entry, entry=entry, desc=str(entry.description()))
+            self.add_node(entry_index, entry=entry, desc=str(entry.description()))
 
             relations = entry.relations()
 
             for index_relation, relation in enumerate(relations):
                 relation_index = relation.index()
-                self.add_edge(index_entry, relation_index)
+                self.add_edge(entry_index, relation_index)
 
     def get_entries(self):
         return self.__entries
+

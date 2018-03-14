@@ -105,10 +105,14 @@ class BartezClusterContainer(nx.Graph):
         for cluster_nodes_index, cluster_nodes in enumerate(clusters_nodes):
             cluster_entries = entries_as_np_array[cluster_nodes]
             cluster_as_bon = nodes_as_np_array[cluster_nodes]
+
+            bartez_cluster_node = BartezClusterNode(cluster_entries)
+            bartez_subgraph = self.__btz_graph.subgraph(cluster_as_bon)
+
             self.add_node(cluster_nodes_index,
                           desc="Cluster " + str(cluster_nodes_index),
-                          cluster_bartez=BartezClusterNode(cluster_entries),
-                          cluster_graph=self.__btz_graph.subgraph(cluster_as_bon))
+                          cluster_bartez = bartez_cluster_node,
+                          cluster_graph = bartez_subgraph)
 
         self.__print_clusters()
         self.__print_clusters_edges()
