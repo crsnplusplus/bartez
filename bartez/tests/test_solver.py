@@ -1,7 +1,6 @@
 import unittest
 
 import bartez.tests.test_utils as test_utils
-from bartez.dictionary.trie import *
 from bartez.graph.cluster import BartezClusterContainer
 from bartez.solver.container_solver import BartezClusterContainerSolver
 

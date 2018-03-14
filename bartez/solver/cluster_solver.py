@@ -11,6 +11,7 @@ class BartezClusterSolver:
         self.__entries = entries
         self.__graph = graph
         self.__traverse_order = []
+        self.__first_entry_index = 0
 
     def set_dictionary(self, dictionary):
         self.__dictionary = dictionary
@@ -21,6 +22,9 @@ class BartezClusterSolver:
     def set_graph(self, graph):
         self.__graph = graph
 
+    def set_first_entry_index(self, first_entry_index):
+        self.__first_entry_index = first_entry_index
+
     def get_num_of_vertex(self):
         return 0 if self.__graph is None else len(self.__graph.nodes())
 
@@ -28,8 +32,13 @@ class BartezClusterSolver:
         self.__traverse_order = self.__get_traverse_order()
         self.__solve_backtracking(self.__entries)
 
+    def __get_first_entry(self):
+        start = self.__first_entry_index
+        #entry_index = self.__entries[start]
+        return start
+
     def __get_traverse_order(self):
-        bfs = nx.dfs_tree(self.__graph, 0)
+        bfs = nx.dfs_tree(self.__graph, self.__get_first_entry())
         bfs_to = list(nx.dfs_preorder_nodes(bfs))
         return bfs_to
 

@@ -103,7 +103,42 @@ class BartezDictionaryTrieNodeVisitorNodeCounter(BartezDictionaryTrieNodeVisitor
         return self.__terminal_count + self.__non_terminal_count
 
 
-class BartezDictionaryTrieNodeVisitorWordMatch(BartezDictionaryTrieNodeVisitor):
+class BartezDictionaryTrieNodeVisitorMatchWord(BartezDictionaryTrieNodeVisitor):
+    def __init__(self, word):
+        self.__word = word.upper()
+        self.__matches = False
+
+    def get_word(self):
+        return self.__word
+
+    def matches(self):
+        return self.__matches
+
+
+    def visit(self, node):
+        node.accept(self)
+
+
+    def visit_non_terminal(self, node):
+        pos = self.get_distance_with_root(node)
+        children = node.get_children()
+
+        letter = '#' if pos == len(self.__word) else self.__word[pos]
+        assert(pos <= len(self.__word))
+
+        if letter not in children:
+            self.__matches = False
+            return
+
+        children[letter].accept(self)
+        return
+
+
+    def visit_terminal(self, node):
+        self.__matches = True
+
+
+class BartezDictionaryTrieNodeVisitorMatchPattern(BartezDictionaryTrieNodeVisitor):
     def __init__(self, word):
         self.__word = word.upper()
         self.__matches = False

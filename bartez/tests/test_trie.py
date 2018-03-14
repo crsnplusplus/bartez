@@ -1,24 +1,7 @@
 import unittest
 
-from bartez.dictionary.trie import BartezDictionaryTrie
 from bartez.dictionary.trie_node_visitor import *
-from bartez.dictionary.trie_serializer import *
 from bartez.tests.test_utils import *
-
-test_trie = None
-test_trie_small = None
-
-def get_test_trie():
-    global test_trie
-    if test_trie is None:
-        test_trie = bartez_trie_import_from_file(get_test_dictionary_path(), "italian")
-    return test_trie
-
-def get_test_trie_small():
-    global test_trie_small
-    if test_trie_small is None:
-        test_trie_small = bartez_trie_import_from_file(get_test_dictionary_path_1000(), "italian")
-    return test_trie_small
 
 
 class TestBartezTrie(unittest.TestCase):
@@ -60,7 +43,7 @@ class TestBartezTrie(unittest.TestCase):
     def test_bartez_trie_visitor_word_match(self):
         dictionary = get_test_trie()
         root = dictionary.get_root()
-        match_visitor = BartezDictionaryTrieNodeVisitorWordMatch('zuzzurellone')
+        match_visitor = BartezDictionaryTrieNodeVisitorMatchWord('zuzzurellone')
         root.accept(match_visitor)
         found = match_visitor.matches()
         print("Word " + match_visitor.get_word() + " found: " + str(found))
@@ -74,10 +57,10 @@ class TestBartezTrie(unittest.TestCase):
         words = list_visitor.get_words()
         self.assertTrue(len(words) == 281614)
 
-        print("Matching every word in dictionary")
+        print("Matching every word in dictionary ( " + str(len(words)) + " )")
         found = True
         for word in words:
-            match_visitor = BartezDictionaryTrieNodeVisitorWordMatch(word)
+            match_visitor = BartezDictionaryTrieNodeVisitorMatchWord(word)
             root.accept(match_visitor)
             found &= match_visitor.matches()
 
@@ -86,26 +69,12 @@ class TestBartezTrie(unittest.TestCase):
     def test_bartez_trie_visitor_word_not_match(self):
         dictionary = get_test_trie()
         root = dictionary.get_root()
-        match_visitor = BartezDictionaryTrieNodeVisitorWordMatch('networkx')
+        match_visitor = BartezDictionaryTrieNodeVisitorMatchWord('networkx')
         root.accept(match_visitor)
         found = match_visitor.matches()
         print("Word " + match_visitor.get_word() + " found: " + str(found))
         self.assertFalse(found)
 
-    def test_bartez_trie_visitor_page_splitter(self):
-        trie_loaded = bartez_trie_load_from_file("bartez_trie.btt")
-        root = trie_loaded.get_root()
-        page_splitter_visitor = BartezDictionaryTrieNodeVisitorPageSplitter()
-        root.accept(page_splitter_visitor)
-        pages = page_splitter_visitor.get_pages()
-        print("Found " + str(len(pages)) + " pages")
-        self.assertTrue(pages is not None)
-
-    def test_bartez_trie_serialize(self):
-        dictionary = get_test_trie()
-        bartez_trie_save_to_file(dictionary, "bartez_trie.btt")
-        trie_loaded = bartez_trie_load_from_file("bartez_trie.btt")
-        self.assertTrue(trie_loaded is not None)
 
 
 if __name__ == '__main__':
