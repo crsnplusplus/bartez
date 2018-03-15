@@ -1,15 +1,21 @@
 import networkx as nx
 import numpy as np
-
 from sklearn import cluster
-
 from bartez.graph.graph import BartezGraph
 
 
 class BartezClusterNode(BartezGraph):
-    def __init__(self, entries, global_entries):
+    def __init__(self, entries, global_entries, container, cluster_index):
         BartezGraph.__init__(self, entries, global_entries)
         self.__is_solved = False
+        self.__container = container
+        self.__cluster_index = cluster_index
+
+    def get_container(self):
+        return self.__container
+
+    def get_cluster_index(self):
+        return self.__cluster_index
 
     def is_solved(self):
         return self.__is_solved
@@ -114,7 +120,11 @@ class BartezClusterContainer(nx.Graph):
             cluster_entries = entries_as_np_array[clusters_nodes[cluster_nodes_index]]
             cluster_as_bon = nodes_as_np_array[clusters_nodes[cluster_nodes_index]]# bon = bunch of nodes
 
-            bartez_cluster_node = BartezClusterNode(list(cluster_entries), list(self.__btz_entries))
+            bartez_cluster_node = BartezClusterNode(list(cluster_entries),
+                                                    list(self.__btz_entries),
+                                                    self,
+                                                    cluster_nodes_index)
+
             bartez_subgraph = self.__btz_graph.subgraph(list(cluster_as_bon))
 
             self.add_node(cluster_nodes_index,

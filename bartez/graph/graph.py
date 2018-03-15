@@ -37,6 +37,7 @@ class BartezGraph(nx.Graph):
 
             for index_relation, relation in enumerate(relations):
                 relation_index = relation.index()
+
                 if relation_index not in local_entries_as_indices:
                     continue
 
