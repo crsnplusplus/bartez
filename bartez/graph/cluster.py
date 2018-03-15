@@ -7,8 +7,8 @@ from bartez.graph.graph import BartezGraph
 
 
 class BartezClusterNode(BartezGraph):
-    def __init__(self, entries):
-        BartezGraph.__init__(self, entries)
+    def __init__(self, entries, global_entries):
+        BartezGraph.__init__(self, entries, global_entries)
         self.__is_solved = False
 
     def is_solved(self):
@@ -22,7 +22,7 @@ class BartezClusterContainer(nx.Graph):
     def __init__(self, entries, clusters_count, make_clusters=True, n_init=200, degree=20):
         nx.Graph.__init__(self)
 
-        self.__btz_graph = BartezGraph(entries)
+        self.__btz_graph = BartezGraph(entries, entries)
         self.__btz_entries = entries
         self.__clusters_count = clusters_count
         self.__n_init = n_init
@@ -114,8 +114,8 @@ class BartezClusterContainer(nx.Graph):
             cluster_entries = entries_as_np_array[clusters_nodes[cluster_nodes_index]]
             cluster_as_bon = nodes_as_np_array[clusters_nodes[cluster_nodes_index]]# bon = bunch of nodes
 
-            bartez_cluster_node = BartezClusterNode(cluster_entries)
-            bartez_subgraph = self.__btz_graph.subgraph(cluster_as_bon)
+            bartez_cluster_node = BartezClusterNode(list(cluster_entries), list(self.__btz_entries))
+            bartez_subgraph = self.__btz_graph.subgraph(list(cluster_as_bon))
 
             self.add_node(cluster_nodes_index,
                           desc="Cluster " + str(cluster_nodes_index),
