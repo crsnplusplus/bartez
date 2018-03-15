@@ -13,6 +13,13 @@ class BartezGraph(nx.Graph):
     def get_local_entries(self):
         return self.__local_entries
 
+    def get_local_entries_as_dict(self):
+        cluster_entries_as_dict = {}
+        cluster_entries = self.get_local_entries()
+        for single_entry in cluster_entries:
+            cluster_entries_as_dict[single_entry.absolute_index()] = single_entry
+        return cluster_entries_as_dict
+
     def __get_local_entries_as_absolute_indices(self):
         indices = [entry.absolute_index() for entry in self.__local_entries]
         return indices

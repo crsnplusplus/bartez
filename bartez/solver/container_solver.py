@@ -76,30 +76,29 @@ class BartezClusterContainerSolver(BartezObservable):
 
         solved_entries = {}
 
-        for bartez_cluster_index in traverse_order:
-            bartez_cluster = container.nodes[bartez_cluster_index]
+        for cluster_index in traverse_order:
+            bartez_cluster = container.nodes[cluster_index]
 
-            next_cluster = self.__get_next_cluster(bartez_cluster_index)
-            intersection = self.__find_clusters_intersection(bartez_cluster, next_cluster)
-            print(intersection)
+            #next_cluster = self.__get_next_cluster(cluster_index)
+            #intersection = self.__find_clusters_intersection(bartez_cluster, next_cluster)
+            #print(intersection)
 
-            bartez_cluster_node = bartez_cluster['cluster_bartez']
-            bartez_cluster_node_graph = bartez_cluster['cluster_graph']
+            cluster_graph = bartez_cluster['cluster_bartez']
 
 #            if bartez_cluster_node.is_solved():
 #                continue
 
-            cluster_entries = bartez_cluster_node.get_local_entries()
+            cluster_entries = cluster_graph.get_local_entries()
             cluster_entries_as_dict = {}
             for single_entry in cluster_entries:
                 cluster_entries_as_dict[single_entry.absolute_index()] = single_entry
 
-            solver = BartezClusterSolver(bartez_cluster_index,
+            solver = BartezClusterSolver(self.__container,
+                                         cluster_index,
+                                         cluster_graph,
                                          self.__matcher,
-                                         cluster_entries_as_dict,
-                                         container_entries_as_dict,
-                                         bartez_cluster_node_graph,
-                                         bartez_cluster_node)
+                                         cluster_entries_as_dict)
+
             self.__register_observers_in_cluster_solver(solver)
 
             solver.run_visitor()

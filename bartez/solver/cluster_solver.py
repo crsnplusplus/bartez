@@ -8,20 +8,22 @@ from bartez.utils_solver import get_pattern, are_there_enough_matches, get_entri
 from bartez.graph.graph_visitor import BartezGraphNodeVisitorSolver
 
 class BartezClusterSolver(BartezObservable):
-    def __init__(self, index, matcher=None, entries=None, container_entries=None ,graph=None, bartez_node=None):
+    def __init__(self, container, cluster_index, cluster, entries=None, matcher=None):
         BartezObservable.__init__(self)
-        self.__index = index,
-        self.__matcher = matcher
+        self.__container = container
+        self.__cluster_index = cluster_index,
+        self.__cluster_graph = cluster
+
         self.__entries = entries
-        self.__container_entries = container_entries
-        self.__graph = graph
-        self.__bartez_node = bartez_node
+        self.__matcher = matcher
+
+
         self.__traverse_order = []
         self.__first_entry_index = 0
         return
 
-    def get_index(self):
-        return self.__index
+    def get_cluster_index(self):
+        return self.__cluster_index
 
     def set_matcher(self, matcher):
         self.__matcher = matcher
@@ -32,31 +34,21 @@ class BartezClusterSolver(BartezObservable):
     def get_entries(self):
         return self.__entries
 
-    def set_container_entries(self, container_entries):
-        self.__container_entries = container_entries
-
-    def set_graph(self, graph):
-        self.__graph = graph
-
-    def set_bartez_node(self, bartez_node):
-        self.__bartez_node = bartez_node
-
     def set_first_entry_index(self, first_entry_index):
         self.__first_entry_index = first_entry_index
 
     def get_num_of_vertex(self):
-        return 0 if self.__graph is None else len(self.__graph.nodes())
+        return 0 if self.__cluster_graph is None else len(self.__cluster_graph.nodes())
 
     def run(self):
         self.__traverse_order = self.__get_traverse_order()
-        self.__solve_backtracking(self.__container_entries)
+        self.__solve_backtracking(copy(self.__container.get_entries()))
 
     def run_visitor(self):
-        graph = self.__graph
-        bartez_node = self.__bartez_node
-        solver = BartezGraphNodeVisitorSolver()
-        for node in bartez_node.nodes:
-            node_obj = bartez_node.nodes[node]
+        cluster_graph = self.__cluster_graph
+        solver = BartezGraphNodeVisitorSolver(self.__matcher)
+        for node in cluster_graph.nodes:
+            node_obj = cluster_graph.nodes[node]
             node_obj['bartez_node'].accept(solver)
         return
 
@@ -67,14 +59,14 @@ class BartezClusterSolver(BartezObservable):
 
     def __get_traverse_order(self):
         #dfs = nx.dfs_tree(self.__graph, self.__get_first_entry())
-        dfs = nx.dfs_tree(self.__graph)
+        dfs = nx.dfs_tree(self.__cluster_graph)
         dfs_to = list(nx.dfs_preorder_nodes(dfs))
         return dfs_to
 
     def run_scenario(self):
         used_words = []
         traverse_order = self.__get_traverse_order()
-        scenario = make_scenario(self.__entries, self.__graph, used_words, traverse_order)
+        scenario = make_scenario(self.__entries, self.__cluster_graph, used_words, traverse_order)
         self.__solve_backtracking_scenario(scenario)
 
     def __solve_backtracking_scenario(self, scenario):

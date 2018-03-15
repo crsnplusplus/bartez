@@ -12,8 +12,9 @@ class BartezGraphNodeVisitor(object):
 class BartezGraphNodeVisitorSolver(BartezGraphNodeVisitor):
     __metaclass__ = ABCMeta
 
-    def __init__(self):
+    def __init__(self, matcher):
         BartezGraphNodeVisitor.__init__(self)
+        self.__matcher = matcher
 
     def visit_entry(self, node):
         entry = node.get_entry()
