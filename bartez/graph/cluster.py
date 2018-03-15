@@ -42,13 +42,16 @@ class BartezClusterContainer(nx.Graph):
         return self.__btz_graph
 
     def get_entries(self):
-        return self.__btz_entries
+        entries = {}
+        for e in self.__btz_entries:
+            entries[e.absolute_index()] = e
+        return entries
 
 
     def get_clusters(self):
         bartez_clusters = []
         for node in self.nodes():
-            bartez_clusters.append(self.nodes[node]['cluster_bartez'])
+            bartez_clusters.append(self.nodes[node]['bartez_cluster'])
         return bartez_clusters
 
 
@@ -116,24 +119,19 @@ class BartezClusterContainer(nx.Graph):
 
         # entries_as_np_array, from np to select a list from another: list = list1[list2]
         entries_as_np_array = np.array(self.__btz_entries)
-        nodes_as_np_array = np.array(self.__btz_graph.nodes())
 
         # creating nodes containing a BartezClusterNode
         for cluster_index, cluster_nodes in enumerate(clusters_nodes):
             cluster_entries = entries_as_np_array[clusters_nodes[cluster_index]]
-            cluster_as_bon = nodes_as_np_array[clusters_nodes[cluster_index]]# bon = bunch of nodes
 
             bartez_cluster_node = BartezClusterNode(list(cluster_entries),
                                                     list(self.__btz_entries),
                                                     self,
                                                     cluster_index)
 
-            bartez_subgraph = self.__btz_graph.subgraph(list(cluster_as_bon))
-
             self.add_node(cluster_index,
                           desc="Cluster " + str(cluster_index),
-                          cluster_bartez = bartez_cluster_node,
-                          cluster_graph = bartez_subgraph)
+                          bartez_cluster = bartez_cluster_node)
 
         self.__print_clusters()
         self.__print_clusters_edges()

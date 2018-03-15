@@ -1,5 +1,12 @@
 from bartez.solver.cluster_solver import *
 from bartez.solver.solver_observer import BartezObservable
+from copy import copy
+
+class BartezClusterContainerScenario():
+    def __init__(self, entries, traverse_order, forbidden):
+        self.entries = copy(entries)
+        self.traverse_order = copy(traverse_order)
+        self.forbidden = forbidden
 
 
 class BartezClusterContainerSolver(BartezObservable):
@@ -23,10 +30,59 @@ class BartezClusterContainerSolver(BartezObservable):
         traverse_order = list(reversed(list(nx.dfs_preorder_nodes(bfs))))
         return traverse_order
 
+    def get_next_cluster_index(self, cluster_index):
+        if self.has_next_cluster(cluster_index) is False:
+            return None
+
+        return cluster_index + 1
+
+    def has_next_cluster(self, cluster_index):
+        container = self.__container
+        next_cluster_index = cluster_index + 1
+        clusters_count = len(container.nodes())
+        return next_cluster_index < clusters_count
+
     def run(self):
         first_cluster = self.__get_first_cluster()
         self.__traverse_order = self.__get_container_traverse_order(first_cluster)
-        self.__solve_backtracking(self.__entries)
+        forbidden = []
+        scenario = BartezClusterContainerScenario(self.__entries, self.__traverse_order, forbidden)
+        return self.__solve_backtracking(self.__traverse_order[0], scenario)
+
+    def __solve_backtracking(self, cluster_index, scenario):
+        print("Solving cluster: " + str(cluster_index))
+        container = self.__container
+        cluster_graph = container.nodes[cluster_index]['bartez_cluster']
+        cluster_entries = cluster_graph.get_local_entries_as_dict()
+
+        replica = BartezClusterContainerScenario(scenario.entries,
+                                                 scenario.traverse_order,
+                                                 scenario.forbidden)
+
+        solver = BartezClusterSolver(self.__container,
+                                     replica.entries,
+                                     cluster_index,
+                                     cluster_graph,
+                                     cluster_entries,
+                                     self.__matcher)
+
+        self.__register_observers_in_cluster_solver(solver)
+        result_scenario, visitor_result = solver.run_visitor(replica)
+        self.__unregister_observers_in_cluster_solver(solver)
+
+        if visitor_result == False:
+            return False
+
+        if self.has_next_cluster(cluster_index) is False:
+            return True # finished
+
+        next_cluster_index = self.get_next_cluster_index(cluster_index)
+
+        if self.__solve_backtracking(next_cluster_index, result_scenario) is True:
+            return True
+
+        return False
+
 
     def __register_observers_in_cluster_solver(self, solver):
         for o in self.get_observers():
@@ -68,44 +124,3 @@ class BartezClusterContainerSolver(BartezObservable):
                 intersection.append(relation)
 
         return intersection
-
-
-    def __solve_backtracking(self, container_entries_as_dict):
-        traverse_order = self.__traverse_order
-        container = self.__container
-
-        solved_entries = {}
-
-        for cluster_index in traverse_order:
-            bartez_cluster = container.nodes[cluster_index]
-
-            #next_cluster = self.__get_next_cluster(cluster_index)
-            #intersection = self.__find_clusters_intersection(bartez_cluster, next_cluster)
-            #print(intersection)
-
-            cluster_graph = bartez_cluster['cluster_bartez']
-
-#            if bartez_cluster_node.is_solved():
-#                continue
-
-            cluster_entries = cluster_graph.get_local_entries()
-            cluster_entries_as_dict = {}
-            for single_entry in cluster_entries:
-                cluster_entries_as_dict[single_entry.absolute_index()] = single_entry
-
-            solver = BartezClusterSolver(self.__container,
-                                         cluster_index,
-                                         cluster_graph,
-                                         self.__matcher,
-                                         cluster_entries_as_dict)
-
-            self.__register_observers_in_cluster_solver(solver)
-
-            solver.run_visitor()
-            solved_entries = solver.get_entries()
-            #container_entries_as_dict
-
-            self.__unregister_observers_in_cluster_solver(solver)
-
-        return True
-

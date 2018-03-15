@@ -1,7 +1,6 @@
 import networkx as nx
 from bartez.graph.graph_node import BartezGraphNodeVisitableEntry
 
-from copy import copy
 
 class BartezGraph(nx.Graph):
     def __init__(self, local_entries, container_entries):

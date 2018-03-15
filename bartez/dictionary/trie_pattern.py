@@ -54,4 +54,4 @@ class BartezDictionaryTriePatternMatcher(object):
         assert(pattern_length == dictionary_page.get_page_number())
         self.__match_visitor.set_pattern(pattern)
         self.__match_visitor.visit(dictionary_page.get_root())
-        return self.__match_visitor.get_matches()
+        return self.__match_visitor.detach_matches()

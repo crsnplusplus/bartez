@@ -5,7 +5,7 @@ class BartezGraphNodeVisitable(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def accept(self, visitor):
+    def accept(self, visitor, scenario):
         pass
 
 
@@ -31,5 +31,5 @@ class BartezGraphNodeVisitableEntry(BartezGraphNodeVisitable):
     def get_graph(self):
         return self.__graph
 
-    def accept(self, visitor):
-        visitor.visit_entry(self)
+    def accept(self, visitor, scenario):
+        return visitor.visit_node(self, scenario)

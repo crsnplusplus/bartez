@@ -1,4 +1,5 @@
 from abc import ABCMeta, abstractmethod
+from copy import copy
 
 
 class BartezDictionaryTrieNodeVisitor(object):
@@ -152,6 +153,11 @@ class BartezDictionaryTrieNodeVisitorMatchPattern(BartezDictionaryTrieNodeVisito
 
     def get_matches(self):
         return self.__matches
+
+    def detach_matches(self):
+        matches = copy(self.__matches)
+        self.__matches.clear()
+        return matches
 
     def visit(self, node):
         node.accept(self)
