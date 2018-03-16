@@ -8,6 +8,10 @@ class BartezNodeVisitor(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod
+    def visit_root(self, node, scenario):
+        pass
+
+    @abstractmethod
     def visit_node(self, node, scenario):
         pass
 
@@ -48,34 +52,33 @@ class BartezClusterVisitorSolver(BartezNodeVisitor, BartezObservable):
         next_node = node.get_graph().nodes[next_to]['bartez_node']
         return next_node
 
+    def visit_root(self, node, scenario):
+        result_scenario, result = self.visit_node(node, scenario)
+        return result_scenario, result
 
     def visit_node(self, node, scenario):
-        entry = node.get_entry()
-
-        if (entry.absolute_index() not in scenario.traverse_order):
-            return True
+        entry = scenario.entries[node.get_absolute_index()]
+        assert(entry.absolute_index() in scenario.traverse_order)
 
         if entry.is_valid():
-            return True
+            return scenario, True
+
+        next_node = self.get_next_child(node, scenario)
+        if next_node is None:
+            return scenario, True
 
         replica = make_replica(scenario)
-        self.notify_observers(replica.entries)
-
-        next_node = self.get_next_child(node, replica)
-        if next_node is None:
-            return True
-
         entry_replica = replica.entries[entry.absolute_index()]
 
         pattern = get_pattern(entry.absolute_index(), replica.entries)
         matches = self.__matcher.get_matches(pattern)
         entry_replica.set_value(pattern)
 
-#        if self.forward_check(node, replica) is False:
-#            return False
+        if self.forward_check(node, replica) is False:
+            return replica, False
 
-#        if self.forward_check(next_node, replica) is False:
-#            return False
+        if self.forward_check(next_node, replica) is False:
+            return replica, False
 
         for match in matches:
             # trying a match
@@ -86,21 +89,28 @@ class BartezClusterVisitorSolver(BartezNodeVisitor, BartezObservable):
             entry_replica.set_value(match)
             entry_replica.set_is_valid(True)
             replica.used_words.append(match)
+            self.notify_observers(replica.entries)
 
-            if self.forward_check(node, replica) is False:
-                continue
+#            if self.forward_check(node, replica) is False:
+#                entry_replica.set_is_valid(False)
+#                entry_replica.set_value(entry.get_value())
+#                continue
 
-            if self.forward_check(next_node, replica) is False:
-                continue
+#            if self.forward_check(next_node, replica) is False:
+#                entry_replica.set_is_valid(False)
+#                entry_replica.set_value(entry.get_value())
+#                continue
 
-            if self.visit_node(next_node, replica):
-                return True
+            result_scenario, result = self.visit_node(next_node, replica)
+            if result is True:
+                return result_scenario, True
 
             if match in replica.used_words:
                 replica.used_words.remove(match)
 
             entry_replica.set_is_valid(False)
-            entry_replica.set_value(entry.get_value())
+            old_value = entry.get_value()
+            entry_replica.set_value(old_value)
             continue
 
-        return False
+        return replica, False

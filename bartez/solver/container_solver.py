@@ -1,11 +1,11 @@
 from bartez.solver.cluster_solver import *
 from bartez.solver.solver_observer import BartezObservable
-from copy import copy
+from copy import deepcopy
 
 class BartezClusterContainerScenario():
     def __init__(self, entries, traverse_order, forbidden):
-        self.entries = copy(entries)
-        self.traverse_order = copy(traverse_order)
+        self.entries = deepcopy(entries)
+        self.traverse_order = deepcopy(traverse_order)
         self.forbidden = forbidden
 
 
@@ -30,17 +30,17 @@ class BartezClusterContainerSolver(BartezObservable):
         traverse_order = list(reversed(list(nx.dfs_preorder_nodes(bfs))))
         return traverse_order
 
-    def get_next_cluster_index(self, cluster_index):
-        if self.has_next_cluster(cluster_index) is False:
+    def get_next_cluster_index(self, cluster_index, scenario):
+        if self.has_next_cluster(cluster_index, scenario) is False:
             return None
 
-        return cluster_index + 1
+        cluster_pos = scenario.traverse_order.index(cluster_index)
+        return scenario.traverse_order[cluster_pos + 1]
 
-    def has_next_cluster(self, cluster_index):
-        container = self.__container
-        next_cluster_index = cluster_index + 1
-        clusters_count = len(container.nodes())
-        return next_cluster_index < clusters_count
+    def has_next_cluster(self, cluster_index, scenario):
+        assert(cluster_index in scenario.traverse_order)
+        cluster_pos = scenario.traverse_order.index(cluster_index)
+        return cluster_pos + 1 < len(scenario.traverse_order)
 
     def run(self):
         first_cluster = self.__get_first_cluster()
@@ -55,9 +55,9 @@ class BartezClusterContainerSolver(BartezObservable):
         cluster_graph = container.nodes[cluster_index]['bartez_cluster']
         cluster_entries = cluster_graph.get_local_entries_as_dict()
 
-        replica = BartezClusterContainerScenario(scenario.entries,
-                                                 scenario.traverse_order,
-                                                 scenario.forbidden)
+        replica = BartezClusterContainerScenario(deepcopy(scenario.entries),
+                                                 deepcopy(scenario.traverse_order),
+                                                 deepcopy(scenario.forbidden))
 
         solver = BartezClusterSolver(self.__container,
                                      replica.entries,
@@ -73,10 +73,10 @@ class BartezClusterContainerSolver(BartezObservable):
         if visitor_result == False:
             return False
 
-        if self.has_next_cluster(cluster_index) is False:
+        if self.has_next_cluster(cluster_index, scenario) is False:
             return True # finished
 
-        next_cluster_index = self.get_next_cluster_index(cluster_index)
+        next_cluster_index = self.get_next_cluster_index(cluster_index, result_scenario)
 
         if self.__solve_backtracking(next_cluster_index, result_scenario) is True:
             return True

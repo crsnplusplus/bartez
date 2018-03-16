@@ -1,7 +1,6 @@
 import unittest
 
 from bartez.dictionary.trie_node_visitor import BartezDictionaryTrieNodeVisitorPageSplitter
-from bartez.dictionary.trie_pattern import BartezDictionaryTriePatternMatcher
 from bartez.tests.test_utils import *
 
 

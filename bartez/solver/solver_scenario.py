@@ -1,14 +1,14 @@
-from copy import copy
+from copy import deepcopy
 
 def make_scenario(entries, graph, used_words, traverse_order, forbidden):
     return BartezSolverScenario(entries, graph, used_words, traverse_order, forbidden)
 
 def make_replica(scenario):
-    return BartezSolverScenario(copy(scenario.entries),
+    return BartezSolverScenario(deepcopy(scenario.entries),
                                 scenario.graph,
-                                copy(scenario.used_words),
-                                copy(scenario.traverse_order),
-                                copy(scenario.forbidden))
+                                deepcopy(scenario.used_words),
+                                deepcopy(scenario.traverse_order),
+                                deepcopy(scenario.forbidden))
 
 class BartezSolverScenario():
     def __init__(self, entries, graph, used_words, traverse_order, forbidden):

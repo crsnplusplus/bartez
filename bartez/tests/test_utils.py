@@ -49,6 +49,8 @@ def get_test_crossword():
     crossword = Crossworld(geometry[0], geometry[1])
     for p in board:
         r, c = p[0], p[1]
+        if r >= geometry[0] or c >= geometry[1]:
+            continue
         crossword.set_value(r, c, SquareValues.block)
     crossword.prepare()
     return crossword
