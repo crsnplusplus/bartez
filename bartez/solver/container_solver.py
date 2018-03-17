@@ -49,7 +49,8 @@ class BartezClusterContainerSolver(BartezObservable):
         forbidden = []
         scenario = BartezClusterContainerScenario(self.__entries, self.__traverse_order, forbidden)
         intersection = [ self.__entries[0] ]
-        return self.__solve_backtracking(self.__traverse_order[0], scenario, intersection)
+        result_scenario, result = self.__solve_backtracking(self.__traverse_order[0], scenario, intersection)
+        return result_scenario, result
 
     def __solve_backtracking(self, cluster_index, scenario, starting_intersection):
         print("Solving cluster: " + str(cluster_index))
@@ -73,18 +74,18 @@ class BartezClusterContainerSolver(BartezObservable):
         self.__unregister_observers_in_cluster_solver(solver)
 
         if visitor_result == False:
-            return False
+            return scenario, False
 
-        if self.has_next_cluster(cluster_index, scenario) is False:
-            return True # finished
+        if self.has_next_cluster(cluster_index, result_scenario) is False:
+            return result_scenario, True # finished
 
         next_cluster_index = self.get_next_cluster_index(cluster_index, result_scenario)
         intersection = self.find_clusters_intersection(cluster_index, next_cluster_index)
 
         if self.__solve_backtracking(next_cluster_index, result_scenario, intersection) is True:
-            return True
+            return result_scenario, True
 
-        return False
+        return scenario, False
 
 
     def __register_observers_in_cluster_solver(self, solver):

@@ -166,10 +166,7 @@ class Crossworld:
                 if square.is_block() is False:
                     square.set_value(SquareValues.char)
 
-
-    def print_crossword(self):
-        print('')
-
+    def __deprecated_print_crossword(self):
         for r in range(0, self.__rows):
             for c in range(0, self.__columns):
                 char = self.__grid[r][c].get_value()
@@ -182,11 +179,31 @@ class Crossworld:
                 elif char == SquareValues.char:
                     print(u'.', end=' '),
                 else:
-                    print(char, end=' '),
-
+                    print(char, end=' ')
             print('')
-
         print('')
+
+
+    def print_crossword(self):
+        as_text = ''
+        for r in range(0, self.__rows):
+            for c in range(0, self.__columns):
+                char = self.__grid[r][c].get_value()
+                if char == SquareValues.block:
+                    """
+                    @todo replace unicode value, now it produces codec ascii error
+                    print('\u2588', end=' '),
+                    """
+                    as_text = as_text + '# '
+                elif char == SquareValues.char:
+                    as_text = as_text + u'. '
+                else:
+                    as_text = as_text + char + ' '
+            as_text = as_text + '\n'
+
+        as_text = as_text + '\n'
+
+        print(as_text)
 
 
     def __update_neighbours(self):

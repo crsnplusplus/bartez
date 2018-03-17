@@ -18,12 +18,14 @@ class BartezDictionaryTriePage(BartezDictionaryTrie):
 
 class BartezDictionaryTriePatternMatcher(object):
 
-    def __init__(self):
+    def __init__(self, collect=True):
         self.__language = ''
         # this is  a reminder: self.__pages *are* dictionaries_by_word_length
         dictionaries_by_word_length = { }
         self.__pages = dictionaries_by_word_length
         self.__match_visitor = BartezDictionaryTrieNodeVisitorMatchPattern()
+        self.__bad_patterns = []
+        self.__collect = collect
 
     def set_language(self, language):
         self.__language = language
@@ -49,9 +51,30 @@ class BartezDictionaryTriePatternMatcher(object):
             dictionary_page.add_word(word)
 
     def get_matches(self, pattern):
+        if pattern in self.__bad_patterns:
+            return None
+
         pattern_length = len(pattern)
         dictionary_page = self.__pages[pattern_length]
         assert(pattern_length == dictionary_page.get_page_number())
         self.__match_visitor.set_pattern(pattern)
         self.__match_visitor.visit(dictionary_page.get_root())
-        return self.__match_visitor.detach_matches()
+
+        matches = self.__match_visitor.detach_matches()
+        if matches is None or len(matches) == 0:
+            self.mark_pattern_as_bad(pattern)
+
+        return matches
+
+    def mark_pattern_as_bad(self, pattern):
+        if pattern.count('.') == 0:
+            return
+
+        if pattern in self.__bad_patterns:
+            return
+
+        self.__bad_patterns.append(pattern)
+
+
+    def is_bad_pattern(self, pattern):
+        return pattern in self.__bad_patterns

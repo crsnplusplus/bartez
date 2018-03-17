@@ -156,7 +156,6 @@ class BartezDictionaryTrieNodeVisitorMatchPattern(BartezDictionaryTrieNodeVisito
 
     def detach_matches(self):
         matches = copy(self.__matches)
-        self.__matches.clear()
         return matches
 
     def visit(self, node):
@@ -169,17 +168,18 @@ class BartezDictionaryTrieNodeVisitorMatchPattern(BartezDictionaryTrieNodeVisito
         letter = '#' if pos == len(self.__pattern) else self.__pattern[pos]
         assert(pos <= len(self.__pattern))
 
+        if letter in children:
+            # so far, so good. continue ...
+            child = children[letter]
+            child.accept(self)
+            return
+
         if letter is '.':
             # continue for every child
             for child in children:
                 children[child].accept(self)
 
-        if letter not in children:
-            # not found!
-            return
-
-        # so far, so good. continue ...
-        children[letter].accept(self)
+        # not found!
         return
 
     def visit_terminal(self, node):
