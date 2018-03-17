@@ -7,7 +7,7 @@ def make_replica(scenario):
     return BartezSolverScenario(deepcopy(scenario.entries),
                                 scenario.graph,
                                 deepcopy(scenario.used_words),
-                                deepcopy(scenario.traverse_order),
+                                scenario.traverse_order,
                                 deepcopy(scenario.forbidden))
 
 class BartezSolverScenario():

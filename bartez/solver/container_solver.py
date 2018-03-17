@@ -3,10 +3,11 @@ from bartez.solver.solver_observer import BartezObservable
 from copy import deepcopy
 
 class BartezClusterContainerScenario():
-    def __init__(self, entries, traverse_order, forbidden):
+    def __init__(self, entries, traverse_order, forbidden, cluster_scenarios=None):
         self.entries = deepcopy(entries)
-        self.traverse_order = deepcopy(traverse_order)
+        self.traverse_order = traverse_order
         self.forbidden = forbidden
+        self.cluster_scenarios = {} if cluster_scenarios is None else cluster_scenarios
 
 
 class BartezClusterContainerSolver(BartezObservable):
@@ -47,16 +48,17 @@ class BartezClusterContainerSolver(BartezObservable):
         self.__traverse_order = self.__get_container_traverse_order(first_cluster)
         forbidden = []
         scenario = BartezClusterContainerScenario(self.__entries, self.__traverse_order, forbidden)
-        return self.__solve_backtracking(self.__traverse_order[0], scenario)
+        intersection = [ self.__entries[0] ]
+        return self.__solve_backtracking(self.__traverse_order[0], scenario, intersection)
 
-    def __solve_backtracking(self, cluster_index, scenario):
+    def __solve_backtracking(self, cluster_index, scenario, starting_intersection):
         print("Solving cluster: " + str(cluster_index))
         container = self.__container
         cluster_graph = container.nodes[cluster_index]['bartez_cluster']
         cluster_entries = cluster_graph.get_local_entries_as_dict()
 
         replica = BartezClusterContainerScenario(deepcopy(scenario.entries),
-                                                 deepcopy(scenario.traverse_order),
+                                                 scenario.traverse_order,
                                                  deepcopy(scenario.forbidden))
 
         solver = BartezClusterSolver(self.__container,
@@ -67,7 +69,7 @@ class BartezClusterContainerSolver(BartezObservable):
                                      self.__matcher)
 
         self.__register_observers_in_cluster_solver(solver)
-        result_scenario, visitor_result = solver.run_visitor(replica)
+        result_scenario, visitor_result = solver.run_visitor(replica, starting_intersection)
         self.__unregister_observers_in_cluster_solver(solver)
 
         if visitor_result == False:
@@ -77,8 +79,9 @@ class BartezClusterContainerSolver(BartezObservable):
             return True # finished
 
         next_cluster_index = self.get_next_cluster_index(cluster_index, result_scenario)
+        intersection = self.find_clusters_intersection(cluster_index, next_cluster_index)
 
-        if self.__solve_backtracking(next_cluster_index, result_scenario) is True:
+        if self.__solve_backtracking(next_cluster_index, result_scenario, intersection) is True:
             return True
 
         return False
@@ -94,23 +97,24 @@ class BartezClusterContainerSolver(BartezObservable):
 
     def __get_next_cluster(self, index):
         traverse_order = self.__traverse_order
-        clusters_count = len(traverse_order)
+        total_clusters_count = len(traverse_order)
         container = self.__container
-        if index + 1 >= clusters_count:
+        if index + 1 >= total_clusters_count:
             return None
 
         next_cluster_index = traverse_order[index + 1]
         next_cluster = container.nodes[next_cluster_index]
         return next_cluster
 
-    def __find_clusters_intersection(self, cluster1, cluster2):
-        if cluster1 is None or cluster2 is None:
+    def find_clusters_intersection(self, c1_index, c2_index):
+        if c1_index is None or c2_index is None:
             return None
 
-        intersection = []
+        container = self.__container
+        cluster1_nodes = container.nodes[c1_index]['bartez_cluster'].nodes()
+        cluster2_nodes = container.nodes[c2_index]['bartez_cluster'].nodes()
 
-        cluster1_nodes = cluster1['cluster_graph'].nodes()
-        cluster2_nodes = cluster2['cluster_graph'].nodes()
+        intersection = []
 
         for node1 in cluster1_nodes:
             entry = self.__entries[node1]

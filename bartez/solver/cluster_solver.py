@@ -39,7 +39,7 @@ class BartezClusterSolver(BartezObservable):
     def get_num_of_vertex(self):
         return 0 if self.__cluster_graph is None else len(self.__cluster_graph.nodes())
 
-    def run_visitor(self, container_scenario):
+    def run_visitor(self, container_scenario, starting_intersection):
         cluster_graph = self.__cluster_graph
         solver = BartezClusterVisitorSolver(self.__matcher)
 
@@ -47,7 +47,7 @@ class BartezClusterSolver(BartezObservable):
             solver.register_observer(o)
 
         used_words = []
-        traverse_order = self.__get_traverse_order()
+        traverse_order = self.__get_traverse_order(starting_intersection)
         scenario = make_scenario(deepcopy(self.__container_entries),
                                  self.__cluster_graph,
                                  deepcopy(used_words),
@@ -79,8 +79,17 @@ class BartezClusterSolver(BartezObservable):
         #entry_index = self.__entries[start]
         return start
 
-    def __get_traverse_order(self):
-        #dfs = nx.dfs_tree(self.__graph, self.__get_first_entry())
-        dfs = self.__cluster_graph
-        dfs_to = list(nx.dfs_preorder_nodes(dfs))
-        return dfs_to
+    def __get_traverse_order(self, intersection):
+        if intersection is None or len(intersection) == 0:
+            dfs = nx.dfs_tree(self.__cluster_graph)
+        else:
+            entry = intersection[0]
+            if entry.absolute_index() not in self.__cluster_graph:
+                break_me = 0
+
+            dfs = nx.dfs_tree(self.__cluster_graph, entry.absolute_index())
+
+
+        #traverse_order = list(reversed(list(nx.dfs_preorder_nodes(dfs))))
+        traverse_order = list(nx.dfs_preorder_nodes(dfs))
+        return traverse_order
