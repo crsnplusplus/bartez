@@ -1,13 +1,7 @@
 from bartez.solver.cluster_solver import *
 from bartez.solver.solver_observer import BartezObservable
+from bartez.solver.solver_scenario import make_container_scenario, make_container_replica, BartezSolverContainerScenario
 from copy import deepcopy
-
-class BartezClusterContainerScenario():
-    def __init__(self, entries, traverse_order, forbidden, cluster_scenarios=None):
-        self.entries = deepcopy(entries)
-        self.traverse_order = traverse_order
-        self.forbidden = forbidden
-        self.cluster_scenarios = {} if cluster_scenarios is None else cluster_scenarios
 
 
 class BartezClusterContainerSolver(BartezObservable):
@@ -47,18 +41,61 @@ class BartezClusterContainerSolver(BartezObservable):
         first_cluster = self.__get_first_cluster()
         self.__traverse_order = self.__get_container_traverse_order(first_cluster)
         forbidden = []
-        scenario = BartezClusterContainerScenario(self.__entries, self.__traverse_order, forbidden)
+        cluster_scenarios = {}
+        scenario =  make_container_scenario(self.__entries, self.__traverse_order, forbidden, cluster_scenarios)
         intersection = [ self.__entries[0] ]
         result_scenario, result = self.__solve_backtracking(self.__traverse_order[0], scenario, intersection)
         return result_scenario, result
 
-    def __solve_backtracking(self, cluster_index, scenario, starting_intersection):
+    def __solve_backtracking(self, cluster_index, container_scenario, starting_intersection):
         print("Solving cluster: " + str(cluster_index))
         container = self.__container
         cluster_graph = container.nodes[cluster_index]['bartez_cluster']
         cluster_entries = cluster_graph.get_local_entries_as_dict()
 
-        replica = BartezClusterContainerScenario(deepcopy(scenario.entries),
+        solver = BartezClusterSolver(self.__container,
+                                     container_scenario.entries,
+                                     cluster_index,
+                                     cluster_graph,
+                                     cluster_entries,
+                                     self.__matcher)
+
+        self.__register_observers_in_cluster_solver(solver)
+        cluster_scenario, visitor_result = solver.run_visitor(container_scenario, starting_intersection)
+        self.__unregister_observers_in_cluster_solver(solver)
+
+        container_replica = make_container_replica(container_scenario)
+
+        if visitor_result == False:
+            return container_scenario, False
+
+        if self.has_next_cluster(cluster_index, cluster_scenario) is False:
+            return cluster_scenario, True # finished
+
+        next_cluster_index = self.get_next_cluster_index(cluster_index, cluster_scenario)
+        intersection = self.find_clusters_intersection(cluster_index, next_cluster_index)
+
+        container_replica_staged, replica_result = self.__solve_backtracking(next_cluster_index,
+                                                                             container_replica,
+                                                                             intersection)
+        return container_replica_staged, replica_result
+
+    def __deprecated_run(self):
+        first_cluster = self.__get_first_cluster()
+        self.__traverse_order = self.__get_container_traverse_order(first_cluster)
+        forbidden = []
+        scenario = BartezSolverContainerScenario(self.__entries, self.__traverse_order, forbidden)
+        intersection = [ self.__entries[0] ]
+        result_scenario, result = self.__deprecated_solve_backtracking(self.__traverse_order[0], scenario, intersection)
+        return result_scenario, result
+
+    def __deprecated_solve_backtracking(self, cluster_index, scenario, starting_intersection):
+        print("Solving cluster: " + str(cluster_index))
+        container = self.__container
+        cluster_graph = container.nodes[cluster_index]['bartez_cluster']
+        cluster_entries = cluster_graph.get_local_entries_as_dict()
+
+        replica = BartezSolverContainerScenario(deepcopy(scenario.entries),
                                                  scenario.traverse_order,
                                                  deepcopy(scenario.forbidden))
 
@@ -82,7 +119,7 @@ class BartezClusterContainerSolver(BartezObservable):
         next_cluster_index = self.get_next_cluster_index(cluster_index, result_scenario)
         intersection = self.find_clusters_intersection(cluster_index, next_cluster_index)
 
-        if self.__solve_backtracking(next_cluster_index, result_scenario, intersection) is True:
+        if self.__deprecated_solve_backtracking(next_cluster_index, result_scenario, intersection) is True:
             return result_scenario, True
 
         return scenario, False

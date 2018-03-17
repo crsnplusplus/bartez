@@ -39,6 +39,9 @@ class BartezClusterVisitorSolver(BartezNodeVisitor, BartezObservable):
 
             pattern = get_pattern(neighbor_entry.absolute_index(), scenario.entries)
             matches = self.__matcher.get_matches(pattern)
+            if matches is None:
+                return False
+
             if len(matches) < 2:
                 return False
 
@@ -51,7 +54,7 @@ class BartezClusterVisitorSolver(BartezNodeVisitor, BartezObservable):
         for n in graph.neighbors(node.get_absolute_index()):
             neighbor_node1 = graph.nodes()[n]['bartez_node']
 
-            if node is neighbor_node1:
+            if neighbor_node1 is node:
                 continue
 
             neighbor_entry1 = neighbor_node1.get_entry()
@@ -66,7 +69,10 @@ class BartezClusterVisitorSolver(BartezNodeVisitor, BartezObservable):
             for m in graph.neighbors(n):
                 neighbor_node2 = graph.nodes()[m]['bartez_node']
 
-                if node is neighbor_node2:
+                if neighbor_node2 is node:
+                    continue
+
+                if neighbor_node2 is neighbor_node1:
                     continue
 
                 neighbor_entry2 = neighbor_node2.get_entry()
@@ -119,22 +125,18 @@ class BartezClusterVisitorSolver(BartezNodeVisitor, BartezObservable):
         if self.__matcher.is_bad_pattern(pattern):
             return scenario, False
 
+        if self.forward_check_neighbors(node, scenario) is False:
+            return scenario, False
+
+        if self.forward_check_neighbors(next_node, scenario) is False:
+            return scenario, False
+
         replica = make_replica(scenario)
         entry_replica = replica.entries[entry.absolute_index()]
         matches = self.__matcher.get_matches(pattern)
-        entry_replica.set_value(pattern)
 
-#        if self.forward_check(node, replica) is False:
-#            return replica, False
-
-        if self.forward_check_neighbors(node, replica) is False:
-            return replica, False
-
-#        if self.forward_check_neighbors(next_node, replica) is False:
-#            return replica, False
-
-#        if self.forward_check(next_node, replica) is False: # 1
-#            return replica, False
+        if len(matches) == 0:
+            self.__matcher.mark_pattern_as_bad(pattern)
 
         for match in matches:
             # trying a match
@@ -147,21 +149,6 @@ class BartezClusterVisitorSolver(BartezNodeVisitor, BartezObservable):
             replica.used_words.append(match)
             self.notify_observers(replica.entries)
 
-#            if self.forward_check(node, replica) is False:
-#                entry_replica.set_is_valid(False)
-#                entry_replica.set_value(entry.get_value())
-#                continue
-
-#            if self.forward_check(next_node, replica) is False:
-#                entry_replica.set_is_valid(False)
-#                entry_replica.set_value(entry.get_value())
-#                continue
-
-#            if self.forward_check_neighbors(node, replica) is False:
-#                entry_replica.set_is_valid(False)
-#                entry_replica.set_value(entry.get_value())
-#                continue
-
             result_scenario, result = self.visit_node(next_node, replica)
             if result is True:
                 return result_scenario, True
@@ -173,9 +160,5 @@ class BartezClusterVisitorSolver(BartezNodeVisitor, BartezObservable):
             old_value = entry.get_value()
             entry_replica.set_value(old_value)
             continue
-
-        # pattern didn't solve entry constraints. it's possible that this pattern
-        # has actually no solutions for entry's neighbors
-        #self.__matcher.mark_pattern_as_bad(pattern)
 
         return replica, False

@@ -19,7 +19,6 @@ class TestBartezSolver(unittest.TestCase):
 
         solver = BartezClusterContainerSolver(entries_as_dict, container, matcher)
         solver.register_observer(print_observer)
-
         scenario, solved = solver.run()
         print("Crossword solved: " + str(solved))
         crossword.set_entries(scenario.entries.values())
