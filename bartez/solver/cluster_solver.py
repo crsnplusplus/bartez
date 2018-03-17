@@ -1,7 +1,7 @@
 import networkx as nx
 
 from bartez.solver.solver_observer import BartezObservable
-from bartez.solver.solver_scenario import make_scenario
+from bartez.solver.solver_scenario import make_scenario, make_container_replica
 from bartez.graph.cluster_visitor import BartezClusterVisitorSolver
 
 from copy import deepcopy
@@ -48,11 +48,11 @@ class BartezClusterSolver(BartezObservable):
 
         used_words = []
         traverse_order = self.__get_traverse_order(starting_intersection)
-        scenario = make_scenario(deepcopy(self.__container_entries),
+        scenario = make_scenario(self.__container_entries,
                                  self.__cluster_graph,
-                                 deepcopy(used_words),
-                                 deepcopy(traverse_order),
-                                 deepcopy(container_scenario.forbidden))
+                                 used_words,
+                                 traverse_order,
+                                 container_scenario.forbidden)
 
         first_node_index = traverse_order[0]
         first_traverse_node = cluster_graph.nodes[first_node_index]
@@ -63,7 +63,7 @@ class BartezClusterSolver(BartezObservable):
         for o in self.get_observers():
             solver.unregister_observer(o)
 
-        container_scenario_result = deepcopy(container_scenario)
+        container_scenario_result = make_container_replica(container_scenario)
         container_scenario_result.entries = deepcopy(cluster_scenario_result.entries)
         container_scenario_result.forbidden = deepcopy(cluster_scenario_result.forbidden)
         return container_scenario_result, result
@@ -84,12 +84,8 @@ class BartezClusterSolver(BartezObservable):
             dfs = nx.dfs_tree(self.__cluster_graph)
         else:
             entry = intersection[0]
-            if entry.absolute_index() not in self.__cluster_graph:
-                break_me = 0
-
+            assert(entry.absolute_index() in self.__cluster_graph)
             dfs = nx.dfs_tree(self.__cluster_graph, entry.absolute_index())
 
-
-        #traverse_order = list(reversed(list(nx.dfs_preorder_nodes(dfs))))
         traverse_order = list(nx.dfs_preorder_nodes(dfs))
         return traverse_order

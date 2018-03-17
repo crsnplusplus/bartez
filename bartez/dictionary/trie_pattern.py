@@ -1,5 +1,6 @@
 from bartez.dictionary.trie import BartezDictionaryTrie
 from bartez.dictionary.trie_node_visitor import BartezDictionaryTrieNodeVisitorMatchPattern
+from bartez.dictionary.trie_node_visitor import BartezDictionaryTrieNodeVisitorSingleMatchPattern
 from bartez.dictionary.trie_node_visitor import BartezDictionaryTrieNodeVisitorPageSplitter
 
 
@@ -24,6 +25,7 @@ class BartezDictionaryTriePatternMatcher(object):
         dictionaries_by_word_length = { }
         self.__pages = dictionaries_by_word_length
         self.__match_visitor = BartezDictionaryTrieNodeVisitorMatchPattern()
+        self.__singlematch_visitor = BartezDictionaryTrieNodeVisitorSingleMatchPattern()
         self.__bad_patterns = []
         self.__collect = collect
 
@@ -58,13 +60,31 @@ class BartezDictionaryTriePatternMatcher(object):
         dictionary_page = self.__pages[pattern_length]
         assert(pattern_length == dictionary_page.get_page_number())
         self.__match_visitor.set_pattern(pattern)
-        self.__match_visitor.visit(dictionary_page.get_root())
+        dictionary_page.get_root().accept(self.__match_visitor)
 
         matches = self.__match_visitor.detach_matches()
         if matches is None or len(matches) == 0:
             self.mark_pattern_as_bad(pattern)
 
         return matches
+
+    def has_match(self, pattern):
+        if pattern in self.__bad_patterns:
+            return None
+
+        self.__singlematch_visitor.set_pattern(pattern)
+
+        pattern_length = len(pattern)
+        dictionary_page = self.__pages[pattern_length]
+        assert(pattern_length == dictionary_page.get_page_number())
+        dictionary_page.get_root().accept(self.__singlematch_visitor)
+        matches = self.__singlematch_visitor.has_match()
+
+        if matches is False:
+            self.mark_pattern_as_bad(pattern)
+
+        return matches
+
 
     def mark_pattern_as_bad(self, pattern):
         if pattern.count('.') == 0:
