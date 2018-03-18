@@ -1,5 +1,29 @@
 from enum import Enum
 
+def get_entries_intersection(c, entry, other):
+    pos_in_entry = c.x() - entry.x() if entry.vertical() else c.y() - entry.y()
+    pos_in_other = c.x() - other.x() if other.vertical() else c.y() - other.y()
+    return pos_in_entry, pos_in_other
+
+def get_pattern(entry_index, entries):
+    entry = entries[entry_index]
+    pattern = entry.value()
+    pattern_as_list = list(pattern)
+    #print entry.description(), ":"
+    #print "  x: ", entry.x(), ", y: ", entry.y()
+    for relation_index, relation in enumerate(entry.relations()):
+        other_index = relation.index()
+        other = entries[other_index]
+        other_pattern = other.value()
+        other_pattern_as_list = list(other_pattern)
+        #print "  relation with ", other.description(), ":"
+        pos_in_entry, pos_in_other = get_entries_intersection(relation.coordinate(), entry, other)
+        char_other = other_pattern_as_list[pos_in_other]
+        pattern_as_list[pos_in_entry] = char_other
+
+    pattern_as_string = "".join(pattern_as_list)
+    return pattern_as_string
+
 
 class Orientation(Enum):
     horizontal = 0
@@ -124,6 +148,12 @@ class Entry:
 
     def get_absolute_index(self):
         return self.__absolute_index
+
+    def get_intersection_with(self, coordinate, other):
+        return get_entries_intersection(coordinate, self, other)
+
+    def get_pattern(self, entries):
+        return get_pattern(self.__absolute_index, entries)
 
     coordinate = get_coordinate
     relations = get_relations

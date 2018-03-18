@@ -153,6 +153,9 @@ class BartezDictionaryTrieNodeVisitorMatchPattern(BartezDictionaryTrieNodeVisito
         return self.__pattern
 
     def get_matches(self):
+        if self.__matches is None:
+            return []
+
         return self.__matches
 
     def detach_matches(self):

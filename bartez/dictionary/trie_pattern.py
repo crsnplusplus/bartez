@@ -53,8 +53,8 @@ class BartezDictionaryTriePatternMatcher(object):
             dictionary_page.add_word(word)
 
     def get_matches(self, pattern):
-        if pattern in self.__bad_patterns:
-            return None
+#        if pattern in self.__bad_patterns:
+#            return []
 
         pattern_length = len(pattern)
         dictionary_page = self.__pages[pattern_length]

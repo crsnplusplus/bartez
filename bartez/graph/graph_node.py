@@ -34,3 +34,5 @@ class BartezGraphNodeVisitableEntry(BartezGraphNodeVisitable):
     def accept(self, visitor, scenario):
         result_scenario, result = visitor.visit_root(self, scenario)
         return result_scenario, result
+
+    entry = get_entry

@@ -46,15 +46,18 @@ class BartezClusterSolver(BartezObservable):
         for o in self.get_observers():
             solver.register_observer(o)
 
+        node_list = self.__get_traverse_order(starting_intersection)
+        path = []
         used_words = []
-        traverse_order = self.__get_traverse_order(starting_intersection)
+
         scenario = make_scenario(self.__container_entries,
                                  self.__cluster_graph,
                                  used_words,
-                                 traverse_order,
+                                 node_list,
+                                 path,
                                  container_scenario.forbidden)
 
-        first_node_index = traverse_order[0]
+        first_node_index = node_list[0]
         first_traverse_node = cluster_graph.nodes[first_node_index]
 
         start_node = first_traverse_node['bartez_node']
