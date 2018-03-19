@@ -1,6 +1,9 @@
 from bartez.solver.cluster_solver import *
 from bartez.solver.solver_observer import BartezObservable
-from bartez.solver.solver_scenario import make_container_scenario, make_container_replica, BartezSolverContainerScenario
+from bartez.solver.solver_scenario import make_container_scenario
+from bartez.solver.solver_scenario import make_container_replica
+from bartez.solver.solver_scenario import BartezSolverContainerScenario
+from bartez.solver.solver_scenario import BartezForbiddenEntries
 from copy import deepcopy
 
 
@@ -40,7 +43,7 @@ class BartezClusterContainerSolver(BartezObservable):
     def run(self):
         first_cluster = self.__get_first_cluster()
         self.__traverse_order = self.__get_container_traverse_order(first_cluster)
-        forbidden = []
+        forbidden = BartezForbiddenEntries()
         cluster_scenarios = {}
         scenario =  make_container_scenario(self.__entries, self.__traverse_order, forbidden, cluster_scenarios)
         intersection = [ self.__entries[0] ]
@@ -74,6 +77,8 @@ class BartezClusterContainerSolver(BartezObservable):
 
         next_cluster_index = self.get_next_cluster_index(cluster_index, cluster_scenario)
         intersection = self.find_clusters_intersection(cluster_index, next_cluster_index)
+
+        container_replica.entries = deepcopy(cluster_scenario.entries)
 
         container_replica_staged, replica_result = self.__solve_backtracking(next_cluster_index,
                                                                              container_replica,

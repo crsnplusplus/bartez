@@ -13,6 +13,9 @@ class BartezDictionaryTriePage(BartezDictionaryTrie):
     def add_word(self, word):
         BartezDictionaryTrie.add_word(self, word)
 
+    def remove_word(self, word):
+        BartezDictionaryTrie.remove_word(self, word)
+
     def get_page_number(self):
         return self.__page_number
 
@@ -52,7 +55,7 @@ class BartezDictionaryTriePatternMatcher(object):
             assert(len(word) == page_index)
             dictionary_page.add_word(word)
 
-    def get_matches(self, pattern):
+    def get_matches(self, pattern, used_words):
 #        if pattern in self.__bad_patterns:
 #            return []
 
@@ -63,14 +66,24 @@ class BartezDictionaryTriePatternMatcher(object):
         dictionary_page.get_root().accept(self.__match_visitor)
 
         matches = self.__match_visitor.detach_matches()
-        if matches is None or len(matches) == 0:
-            self.mark_pattern_as_bad(pattern)
+        matches = [m for m in matches if m not in used_words]
+#        if matches is None or len(matches) == 0:
+#            self.mark_pattern_as_bad(pattern)
 
         return matches
 
+    def get_matches_tree(self, pattern, used_words):
+        matches = self.get_matches(pattern, used_words)
+
+        bartez_dictionary = BartezDictionaryTrie("local_search")
+        for match in matches:
+            bartez_dictionary.add_word(match)
+
+        return bartez_dictionary
+
     def has_match(self, pattern):
-        if pattern in self.__bad_patterns:
-            return None
+ #       if pattern in self.__bad_patterns:
+ #           return False
 
         self.__singlematch_visitor.set_pattern(pattern)
 
@@ -80,21 +93,23 @@ class BartezDictionaryTriePatternMatcher(object):
         dictionary_page.get_root().accept(self.__singlematch_visitor)
         matches = self.__singlematch_visitor.has_match()
 
-        if matches is False:
-            self.mark_pattern_as_bad(pattern)
+#        if matches is False:
+#            self.mark_pattern_as_bad(pattern)
 
         return matches
 
 
     def mark_pattern_as_bad(self, pattern):
-        if pattern.count('.') == 0:
-            return
+        return
+        #if pattern.count('.') == 0:
+        #    return
 
-        if pattern in self.__bad_patterns:
-            return
+        #if pattern in self.__bad_patterns:
+        #    return
 
-        self.__bad_patterns.append(pattern)
+        #self.__bad_patterns.append(pattern)
 
 
     def is_bad_pattern(self, pattern):
-        return pattern in self.__bad_patterns
+        return False
+        #return pattern in self.__bad_patterns

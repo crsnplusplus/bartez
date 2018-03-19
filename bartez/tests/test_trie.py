@@ -41,6 +41,5 @@ class TestBartezTrie(unittest.TestCase):
               "Terminal Nodes: " + str(terminal_count) + "\n" +
               "Non Terminal Nodes: " + str(non_terminal_count) + "\n")
 
-
 if __name__ == '__main__':
     unittest.main()

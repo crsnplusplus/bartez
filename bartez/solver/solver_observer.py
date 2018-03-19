@@ -16,6 +16,10 @@ class BartezObservable():
         for o in self.__observers:
             o.update(entries)
 
+    def notify_observers_message(self, m):
+        for o in self.__observers:
+            o.message(m)
+
     def get_observers(self):
         return self.__observers
 
@@ -27,6 +31,9 @@ class BartezSolverObserver(object):
     def update(self, entries):
         pass
 
+    @abstractmethod
+    def message(self, message):
+        pass
 
 class BartezSolverObserverPrintCrossword(BartezSolverObserver):
     __metaclass__ = ABCMeta
@@ -39,3 +46,6 @@ class BartezSolverObserverPrintCrossword(BartezSolverObserver):
         self.__crossword.clear_all_non_blocks()
         self.__crossword.set_entries(entries.values())
         self.__crossword.print_crossword()
+
+    def message(self, message):
+        print(message)

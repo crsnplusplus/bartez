@@ -1,9 +1,14 @@
 from enum import Enum
 
+def get_relations_as_entries(entry, entries):
+    return [entries[r.index()] for r in entry.relations()]
+
+
 def get_entries_intersection(c, entry, other):
     pos_in_entry = c.x() - entry.x() if entry.vertical() else c.y() - entry.y()
     pos_in_other = c.x() - other.x() if other.vertical() else c.y() - other.y()
     return pos_in_entry, pos_in_other
+
 
 def get_pattern(entry_index, entries):
     entry = entries[entry_index]
@@ -154,6 +159,9 @@ class Entry:
 
     def get_pattern(self, entries):
         return get_pattern(self.__absolute_index, entries)
+
+    def get_relations_entries(self, entries):
+        return get_relations_as_entries(self, entries)
 
     coordinate = get_coordinate
     relations = get_relations

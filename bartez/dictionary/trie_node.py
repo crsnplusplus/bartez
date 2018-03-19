@@ -9,14 +9,11 @@ class BartezDictionaryTrieNode(object):
         self.__char = char
         self.__parent = parent
 
-
     def get_char(self):
         return self.__char
 
-
     def get_parent(self):
         return self.__parent
-
 
     @abstractmethod
     def accept(self, visitor):
@@ -29,14 +26,11 @@ class BartezDictionaryTrieNodeNonTerminal(BartezDictionaryTrieNode):
         BartezDictionaryTrieNode.__init__(self, parent, char)
         self.__children = { }
 
-
     def get_children(self):
         return self.__children
 
-
     def accept(self, visitor):
         visitor.visit_non_terminal(self)
-
 
     def get_child(self, char):
         return self.__children[char] if char in self.__children else None
@@ -44,15 +38,16 @@ class BartezDictionaryTrieNodeNonTerminal(BartezDictionaryTrieNode):
     def has_terminal(self):
         return True if self.get_child('#') is not None else False
 
-
     def has_children(self):
         return len(self.__children) > 0
-
 
     def add_child(self, child):
         assert(self.get_child(child.get_char()) is None)
         self.__children[child.get_char()] = child
 
+    def remove_child(self, child):
+        assert(self.get_child(child.get_char()) is not None)
+        self.__children.pop(child.get_char())
 
 class BartezDictionaryTrieNodeTerminal(BartezDictionaryTrieNode):
     """Trie Node Terminal used by BartezTrie class"""

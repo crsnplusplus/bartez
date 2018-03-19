@@ -29,15 +29,12 @@ class BartezDictionaryTrieNodeVisitorPrint(BartezDictionaryTrieNodeVisitor):
     def visit(self, node):
         node.accept(self)
 
-
     def visit_non_terminal(self, node):
         for child in node.get_children().items():
             child[1].accept(self)
 
-
     def visit_terminal(self, node):
         parent = node.get_parent()
-
         word = ""
 
         while parent is not None:
@@ -206,6 +203,7 @@ class BartezDictionaryTrieNodeVisitorSingleMatchPattern(BartezDictionaryTrieNode
 
     def set_pattern(self, pattern):
         self.__pattern = pattern.upper()
+        self.reset()
 
     def get_pattern(self):
         return self.__pattern

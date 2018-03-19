@@ -36,3 +36,20 @@ def make_replica(scenario):
                                 scenario.node_list,
                                 deepcopy(scenario.path),
                                 deepcopy(scenario.forbidden))
+
+
+class BartezForbiddenEntries():
+    def __init__(self):
+        self.__pattern = { }
+
+    def add_pattern(self, index, pattern):
+        if index not in self.__pattern:
+            self.__pattern[index] = set()
+
+        self.__pattern[index].add(pattern)
+
+    def get_patterns(self, index):
+        return self.__pattern[index]
+
+    def get_all_patterns(self):
+        return self.__pattern
