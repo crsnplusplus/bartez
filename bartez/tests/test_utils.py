@@ -6,6 +6,7 @@ import networkx as nx
 from networkx.algorithms.community import k_clique_communities
 from networkx.algorithms.community.kernighan_lin import kernighan_lin_bisection
 
+
 def get_test_crossword():
     board, geometry = boards.get_default_board()
     crossword = Crossworld(geometry[0], geometry[1])

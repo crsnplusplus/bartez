@@ -100,6 +100,9 @@ class Crossworld:
 
     def set_value(self, row, column, value):
         #  print "row: ", row, " column: ", column, " value: ", value
+        if row >= self.__rows or column >= self.__columns:
+            return
+
         self.__grid[row][column] = Square(row, column, value)
 
     def set_value_from_entry(self, entry):
@@ -271,6 +274,9 @@ class Crossworld:
 
         self.__intersections = intersection_matrix
         return
+
+    def get_intersection_matrix(self):
+        return self.__intersections
 
     def __get_intersection(self, index_entry, index_other):
         return self.__intersections[index_entry][index_other]

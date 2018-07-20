@@ -26,6 +26,7 @@ setup(name='bartez',
           'networkx',
           'community_detect',
           'matplotlib',
+          'ortools'
       ],
       test_suite='tests',
       entry_points={

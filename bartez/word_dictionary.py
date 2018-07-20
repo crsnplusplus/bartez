@@ -27,6 +27,9 @@ class Dictionary:
 
         return self.__d[num]
 
+    def get_max_word_length(self):
+        return len(self.__d)
+
     def get_words_count(self):
         words_count = 0
         for page in self.__d:
@@ -42,5 +45,8 @@ class Dictionary:
                 if difference > 0:
                     for p in range(0, difference):
                         self.__d.append([])
+
+                if len(word) < 2:
+                    continue
 
                 self.__d[len(word)-1].append(DictionaryEntry(word.upper(), []))

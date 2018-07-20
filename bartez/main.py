@@ -6,7 +6,7 @@ from bartez.word_dictionary import Dictionary
 
 
 def get_dictionary():
-    return Dictionary("italian", "words.txt")
+    return Dictionary("italian", "words_test_corriere.txt")
 
 
 def main():

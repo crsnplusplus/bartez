@@ -34,6 +34,7 @@ def get_default_board():
     points.append([9, 15])
     points.append([8, 16])
     points.append([7, 17])
-    geometry = [12, 18]
+    #geometry = [12, 18]
+    geometry = [6, 12]
 
     return points, geometry

@@ -36,18 +36,18 @@ class BartezTrie(object):
         for pos in range(len(word)):
             current_char = word[pos]
             child = parent.get_child(current_char)
-            if child == None:
+            if child is None:
                 child = BartezNodeNonTerminal(parent, current_char)
                 parent.add_child(child)
 
             parent = child
 
-        if parent.has_terminal() == False:
+        if parent.has_terminal() is False:
             child = BartezNodeTerminal(parent)
             parent.add_child(child)
 
     def __load(self):
-        if self.__root == None:
+        if self.__root is None:
             self.__root = BartezNodeNonTerminal(None, '')
 
         first = '0'
@@ -63,6 +63,5 @@ class BartezTrie(object):
                 if first != word[0]:
                     first = word[0]
                     print("adding page: " + str(first))
-                    
-                
+
                 self.add_word(word.upper())
