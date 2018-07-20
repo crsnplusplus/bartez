@@ -86,8 +86,8 @@ class BartezClusterVisitorSolver(BartezNodeVisitor, BartezObservable):
 
         replica.path.append(entry_replica.absolute_index())
 
-        match_tree = self.__matcher.get_matches_tree(pattern, [])
-        match_tree.
+        matches = self.__matcher.get_matches(pattern, replica.used_words)
+
         old_value = entry.get_value()
 
 
@@ -97,7 +97,7 @@ class BartezClusterVisitorSolver(BartezNodeVisitor, BartezObservable):
 
         has_matches = len(matches) > 0
 
-        while has_matches is True:
+        while len(matches) > 0 is True:
             match = matches.pop()
             # trying a match
 
@@ -116,8 +116,6 @@ class BartezClusterVisitorSolver(BartezNodeVisitor, BartezObservable):
             forbidden, fw_check = self.forward_check(entry_replica, replica)
             if fw_check is False:
                 replica.forbidden = forbidden
-
-
                 continue
 
             result_scenario, result = self.visit_node(next_node, replica)

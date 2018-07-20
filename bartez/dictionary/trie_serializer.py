@@ -29,17 +29,21 @@ def bartez_trie_import_from_file(file, language):
 
     with open(file) as f:
         for word in f:
+            word = word.upper()
             word = word.replace("\n", "")
             word = word.replace("\r", "")
 
             if len(word) < 2:
                 continue
 
+            if word.isalpha() is False:
+                continue
+
             if first != word[0]:
                 first = word[0]
                 print("adding page: " + str(first))
 
-            trie_dictionary.add_word(word.upper())
+            trie_dictionary.add_word(word)
 
     return trie_dictionary
 
