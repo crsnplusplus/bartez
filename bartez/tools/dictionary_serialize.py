@@ -17,5 +17,6 @@ def main():
     serialize_pattern_matcher(file_src, language, matcher_file)
     print("Serialization complete")
 
+
 if __name__ == "__main__":
     main()

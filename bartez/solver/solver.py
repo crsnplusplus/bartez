@@ -74,7 +74,7 @@ class CrosswordSolver:
                 if self.__forward_check(self.__dictionary,
                                         used_words_copy,
                                         entry_index,
-                                        entries_copy) == False:
+                                        entries_copy) is False:
                     continue
 
                 used_words.append(match)
@@ -97,7 +97,7 @@ class CrosswordSolver:
         for relation_index, relation in enumerate(entry.relations()):
             pattern_as_list = list(pattern)
             other = entries[relation.index()]
-            if other.is_valid() == True:
+            if other.is_valid() is True:
                 continue
 
             other_pattern_as_list = list(other.value())
@@ -107,7 +107,7 @@ class CrosswordSolver:
 
             other_pattern = "".join(other_pattern_as_list)
 
-            if are_there_enough_matches(dictionary, other_pattern, used_words, 1) == False:
+            if are_there_enough_matches(dictionary, other_pattern, used_words, 1) is False:
                 return False
 
         return True
@@ -128,7 +128,7 @@ class CrosswordSolver:
 
             other_pattern = "".join(other_pattern_as_list)
 
-            if are_there_enough_matches(dictionary, other_pattern, used_words, 2) == False:
+            if are_there_enough_matches(dictionary, other_pattern, used_words, 2) is False:
                 return False
 
         return True
