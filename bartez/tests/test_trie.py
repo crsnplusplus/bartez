@@ -8,7 +8,7 @@ from bartez.tests.test_utils import *
 class Test_bartez_trie(unittest.TestCase):
     def test_bartez_trie_creation(self):
         trie = BartezTrie('italian', 'words_test_1000.txt')
-        self.assertTrue(trie.is_loaded() == True)
+        self.assertTrue(trie.is_loaded() is True)
 
 
     def test_bartez_trie_visitor_print(self):
@@ -16,7 +16,7 @@ class Test_bartez_trie(unittest.TestCase):
         printVisitor = BartezNodeVisitorPrint()
         root = trie.get_root()
         root.accept(printVisitor)
-        self.assertTrue(trie.is_loaded() == True)
+        self.assertTrue(trie.is_loaded() is True)
 
 
     def test_bartez_trie_visitor_list(self):
@@ -26,7 +26,8 @@ class Test_bartez_trie(unittest.TestCase):
         root.accept(listVisitor)
         words = listVisitor.get_words()
         len_words = len(words)
-        self.assertTrue(len(words) == 1000)
+        print("words_count " +  str(len(words)))
+        self.assertTrue(len(words) is 3001)
 
 
     def test_bartez_trie_visitor_list_long(self):
@@ -36,7 +37,7 @@ class Test_bartez_trie(unittest.TestCase):
         root.accept(listVisitor)
         words = listVisitor.get_words()
         len_words = len(words)
-        self.assertTrue(len(words) == 281614)
+        self.assertTrue(len(words) is 281614)
 
 if __name__ == '__main__':
     unittest.main()
