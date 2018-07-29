@@ -24,6 +24,7 @@ setup(name='bartez',
       packages=['bartez'],
       install_requires=[
           'networkx',
+          'scipy',
           'sklearn',
           'numpy',
           'plotly',

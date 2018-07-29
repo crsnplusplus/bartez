@@ -15,7 +15,7 @@ class TestBartezGraph(unittest.TestCase):
         entries = crossword.get_entries()
         graph = test_utils.get_test_graph(crossword)
         pp = pretty_plot_graph(graph, entries)
-        py.iplot(pp)
+        #py.iplot(pp)
 
         sections = kernighan_lin_bisection(graph, max_iter=2)#max_iter=graph.number_of_nodes())
         subgraphs = []
