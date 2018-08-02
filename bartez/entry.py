@@ -1,5 +1,10 @@
 from enum import Enum
 
+from operator import methodcaller
+
+def get_entries_by_length(entries):
+    return sorted(entries, key=methodcaller('get_length'), reverse=True)
+
 def get_relations_as_entries(entry, entries):
     return [entries[r.index()] for r in entry.relations()]
 

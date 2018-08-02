@@ -39,7 +39,7 @@ class TestBartezTriePattern(unittest.TestCase):
         trie_loaded.add_word(word)
         trie_loaded.remove_word(word)
         list_visitor = BartezDictionaryTrieNodeVisitorList()
-        root = trie_loaded .get_root()
+        root = trie_loaded.get_root()
         root.accept(list_visitor)
         words = list_visitor.get_words()
         self.assertTrue(len(words) == 281614)

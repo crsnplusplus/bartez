@@ -55,6 +55,15 @@ class BartezDictionaryTriePatternMatcher(object):
             assert(len(word) == page_index)
             dictionary_page.add_word(word)
 
+    def pop_front(self):
+        return self.__match_visitor.pop_front()
+
+    def remove_from_matches(self, word):
+        return
+
+    def remove_pattern_from_matches(self, pattern):
+        return
+
     def get_matches(self, pattern, used_words):
 #        if pattern in self.__bad_patterns:
 #            return []
@@ -69,7 +78,6 @@ class BartezDictionaryTriePatternMatcher(object):
         matches = [m for m in matches if m not in used_words]
 #        if matches is None or len(matches) == 0:
 #            self.mark_pattern_as_bad(pattern)
-
         return matches
 
     def get_matches_tree(self, pattern, used_words):

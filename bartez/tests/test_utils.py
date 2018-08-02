@@ -44,6 +44,17 @@ def get_serialized_trie():
     return trie_loaded
 
 
+def get_test_crossword_4x4():
+    board, geometry = boards.get_default_board_4x4()
+    crossword = Crossworld(geometry[0], geometry[1])
+    for p in board:
+        r, c = p[0], p[1]
+        if r >= geometry[0] or c >= geometry[1]:
+            continue
+        crossword.set_value(r, c, SquareValues.block)
+    crossword.prepare()
+    return crossword
+
 def get_test_crossword():
     board, geometry = boards.get_default_board()
     crossword = Crossworld(geometry[0], geometry[1])

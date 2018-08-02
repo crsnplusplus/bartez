@@ -53,14 +53,16 @@ def pretty_plot_graph(graph, entries, color_h='rgb(255,255,255)', color_v='rgb(0
     for edge in graph.edges():
         x0, y0 = graph.node[edge[0]]['pos']
         x1, y1 = graph.node[edge[1]]['pos']
-        edge_trace['x'] += [x0, x1, None]
-        edge_trace['y'] += [y0, y1, None]
+        #edge_trace['x'] += [x0, x1, None]
+        #edge_trace['y'] += [y0, y1, None]
+        #edge_trace['x'].append(x0)
+        #edge_trace['y'].append(y0)
 
     for node in graph.nodes():
         x, y = graph.node[node]['pos']
-        node_trace['x'].append(x)
-        node_trace['y'].append(y)
-        node_trace['text'].append(graph.node[node]['desc'])
+#        node_trace['x'].append(x)
+#        node_trace['y'].append(y)
+#        node_trace['text'].append(graph.node[node]['desc'])
 
     fig = Figure(data=Data([edge_trace, node_trace]),
                 layout=Layout(

@@ -38,11 +38,18 @@ class BartezSolverObserver(object):
 class BartezSolverObserverPrintCrossword(BartezSolverObserver):
     __metaclass__ = ABCMeta
 
-    def __init__(self, crossword):
+    def __init__(self, crossword, times = 1):
         BartezSolverObserver.__init__(self)
         self.__crossword = crossword
+        self.__count = 0
+        self.__times = times
 
     def update(self, entries):
+        self.__count = self.__count + 1
+
+        if ((self.__count % self.__times) == 0) is False:
+            return
+
         self.__crossword.clear_all_non_blocks()
         self.__crossword.set_entries(entries.values())
         self.__crossword.print_crossword()

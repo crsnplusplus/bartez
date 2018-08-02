@@ -17,7 +17,7 @@ def make_container_replica(scenario):
                                          deepcopy(scenario.cluster_scenarios))
 
 
-class BartezSolverScenario():
+class BartezSolverScenario:
     def __init__(self, entries, graph, used_words, node_list, path, forbidden):
         self.entries = entries
         self.graph = graph
@@ -38,7 +38,7 @@ def make_replica(scenario):
                                 deepcopy(scenario.forbidden))
 
 
-class BartezForbiddenEntries():
+class BartezForbiddenEntries:
     def __init__(self):
         self.__pattern = { }
 
@@ -49,7 +49,17 @@ class BartezForbiddenEntries():
         self.__pattern[index].add(pattern)
 
     def get_patterns(self, index):
+        if index not in self.__pattern:
+            return None
+
         return self.__pattern[index]
+
+    def contains_pattern(self, index, pattern):
+        if index not in self.__pattern:
+            return False
+
+        is_pattern_in_forbidden = pattern in self.__pattern[index]
+        return is_pattern_in_forbidden
 
     def get_all_patterns(self):
         return self.__pattern

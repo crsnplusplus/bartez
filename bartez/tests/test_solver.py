@@ -10,6 +10,7 @@ class TestBartezSolver(unittest.TestCase):
 
     def test_bartez_solver_run(self):
 
+        #crossword = test_utils.get_test_crossword_4x4()
         crossword = test_utils.get_test_crossword()
         container = BartezClusterContainer(crossword.get_entries(), 1)
         entries_as_dict = crossword.get_entries_as_dict()

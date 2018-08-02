@@ -25,7 +25,8 @@ class BartezClusterContainerSolver(BartezObservable):
 
     def __get_container_traverse_order(self, start):
         bfs = nx.dfs_tree(self.__container, start)
-        traverse_order = list(reversed(list(nx.dfs_preorder_nodes(bfs))))
+        #traverse_order = list(reversed(list(nx.dfs_preorder_nodes(bfs))))
+        traverse_order = list(nx.dfs_preorder_nodes(bfs))
         return traverse_order
 
     def get_next_cluster_index(self, cluster_index, scenario):
@@ -69,7 +70,7 @@ class BartezClusterContainerSolver(BartezObservable):
 
         container_replica = make_container_replica(container_scenario)
 
-        if visitor_result == False:
+        if visitor_result is False:
             return container_scenario, False
 
         if self.has_next_cluster(cluster_index, cluster_scenario) is False:

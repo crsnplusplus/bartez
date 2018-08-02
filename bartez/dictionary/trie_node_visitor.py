@@ -159,6 +159,14 @@ class BartezDictionaryTrieNodeVisitorMatchPattern(BartezDictionaryTrieNodeVisito
         matches = copy(self.__matches)
         return matches
 
+    def pop_front(self):
+        if self.__matches is None:
+            return None
+
+        match = copy(self.__matches[0])
+        self.__matches.remove(match)
+        return match
+
     def visit(self, node):
         node.accept(self)
 
@@ -184,9 +192,9 @@ class BartezDictionaryTrieNodeVisitorMatchPattern(BartezDictionaryTrieNodeVisito
         return
 
     def visit_terminal(self, node):
-        self.__add_word_to_matches(node)
+        self.add_word_to_matches(node)
 
-    def __add_word_to_matches(self, terminal_node):
+    def add_word_to_matches(self, terminal_node):
         current_node = terminal_node.get_parent()
         word = ""
 
@@ -195,6 +203,13 @@ class BartezDictionaryTrieNodeVisitorMatchPattern(BartezDictionaryTrieNodeVisito
             current_node = current_node.get_parent()
 
         self.__matches.append(word)
+
+    def remove_word_from_matches(self, word):
+        if word in self.__matches is False:
+            return
+
+        self.__matches.remove(word)
+
 
 class BartezDictionaryTrieNodeVisitorSingleMatchPattern(BartezDictionaryTrieNodeVisitor):
     def __init__(self, pattern=''):
@@ -246,6 +261,56 @@ class BartezDictionaryTrieNodeVisitorSingleMatchPattern(BartezDictionaryTrieNode
     def visit_terminal(self, node):
         self.__matches = True
 
+
+class BartezDictionaryTrieNodeVisitorRemoveMatchingPattern(BartezDictionaryTrieNodeVisitor):
+    def __init__(self, pattern=''):
+        self.__pattern = pattern
+        self.__matches = False
+
+    def set_pattern(self, pattern):
+        self.__pattern = pattern.upper()
+        self.reset()
+
+    def get_pattern(self):
+        return self.__pattern
+
+    def has_match(self):
+        return self.__matches
+
+    def reset(self):
+        self.__matches = False
+
+    def visit(self, node):
+        node.accept(self)
+
+    def visit_non_terminal(self, node):
+        if self.__matches is True:
+            return
+
+        pos = self.get_distance_with_root(node)
+        children = node.get_children()
+
+        letter = '#' if pos == len(self.__pattern) else self.__pattern[pos]
+        assert(pos <= len(self.__pattern))
+
+        if letter in children:
+            # so far, so good. continue ...
+            child = children[letter]
+            child.accept(self)
+            return
+
+        if letter is '.':
+            # continue for every child
+            for child in children:
+                children[child].accept(self)
+                if self.__matches is True:
+                    return
+
+        # not found!
+        return
+
+    def visit_terminal(self, node):
+        self.__matches = True
 
 class BartezDictionaryTrieNodeVisitorPageSplitter(BartezDictionaryTrieNodeVisitor):
     def __init__(self):

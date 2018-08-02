@@ -41,7 +41,7 @@ def bartez_trie_import_from_file(file, language):
 
             if first != word[0]:
                 first = word[0]
-                print("adding page: " + str(first))
+                print("page: " + str(first))
 
             trie_dictionary.add_word(word)
 
