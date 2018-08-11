@@ -38,8 +38,8 @@ def get_default_board():
     #geometry = [6, 12]
     #geometry = [6, 6]
 
-    points.append([0, 11])
-    points.append([0, 10])
+    #points.append([0, 11])
+    #points.append([0, 10])
     return points, geometry
 
 def get_default_board_4x4():

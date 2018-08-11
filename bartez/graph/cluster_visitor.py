@@ -4,6 +4,7 @@ from bartez.solver.solver_observer import BartezObservable
 from bartez.solver.solver_scenario import make_replica, BartezForbiddenEntries
 from bartez.dictionary.trie_node_visitor import BartezDictionaryTrieNodeVisitorMatchPattern
 from bartez.entry import get_entries_intersection, get_entries_by_length
+import networkx as nx
 
 from copy import deepcopy
 
@@ -36,6 +37,7 @@ class BartezClusterVisitorSolver(BartezNodeVisitor, BartezObservable):
         BartezObservable.__init__(self)
         self.__matcher = matcher
         self.backjump = None
+        self.traverse_order = []
 
     def get_children_by_length(self, node, scenario):
         node_index = node.get_absolute_index()
@@ -81,8 +83,10 @@ class BartezClusterVisitorSolver(BartezNodeVisitor, BartezObservable):
 
         return None
 
-    def visit_root(self, node, scenario):
-        result_scenario, result = self.visit_node(node, scenario)
+    def visit_root(self, root, scenario):
+        dfs = nx.dfs_tree(root.get_graph(), 0)
+        self.traverse_order = list(nx.dfs_preorder_nodes(dfs))
+        result_scenario, result = self.visit_node(root, scenario)
         return result_scenario, result
 
     def visit_node(self, node, scenario):
@@ -156,7 +160,7 @@ class BartezClusterVisitorSolver(BartezNodeVisitor, BartezObservable):
                 continue
 
             if self.backjump.target_node != node_index:
-                # backjumping
+                # executing backjumping
                 return scenario, False
 
             self.notify_observers_backjump_end(self.backjump, pattern)
@@ -171,7 +175,7 @@ class BartezClusterVisitorSolver(BartezNodeVisitor, BartezObservable):
         entry_replica.set_is_valid(False)
         entry_replica.set_value(old_value)
 
-        #backjumping
+        #packing backjumping
         assert(self.backjump is None)
         #self.backjump = self.get_backjump_info(entry_replica, pattern, replica)
         #self.backjump = None
