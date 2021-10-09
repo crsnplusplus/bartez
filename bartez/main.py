@@ -1,6 +1,6 @@
 from bartez import boards
 from bartez.crossword import Crossworld
-from bartez.crossword import SquareValues
+from bartez.symbols import SquareValues
 from bartez.solver.solver import CrosswordSolver
 from bartez.word_dictionary import Dictionary
 
@@ -18,7 +18,7 @@ def main():
 
     for p in board:
         r, c = p[0], p[1]
-        crossword.set_value(r, c, SquareValues.block)
+        crossword.set_symbol(r, c, SquareValues.block)
 
     crossword.prepare()
     crossword.print_crossword()

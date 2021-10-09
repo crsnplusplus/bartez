@@ -1,5 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
+from bartez.symbols import SquareValues
+
 
 class BartezDictionaryTrieNode(object):
     __metaclass__ = ABCMeta
@@ -42,7 +44,7 @@ class BartezDictionaryTrieNodeNonTerminal(BartezDictionaryTrieNode):
         return self.__children[char] if char in self.__children else None
 
     def has_terminal(self):
-        return True if self.get_child('#') is not None else False
+        return True if self.get_child(SquareValues.block) is not None else False
 
 
     def has_children(self):
@@ -57,7 +59,7 @@ class BartezDictionaryTrieNodeNonTerminal(BartezDictionaryTrieNode):
 class BartezDictionaryTrieNodeTerminal(BartezDictionaryTrieNode):
     """Trie Node Terminal used by BartezTrie class"""
     def __init__(self, parent):
-        BartezDictionaryTrieNode.__init__(self, parent, '#')
+        BartezDictionaryTrieNode.__init__(self, parent, SquareValues.block)
 
     def accept(self, visitor):
         visitor.visit_terminal(self)

@@ -1,12 +1,8 @@
 from __future__ import print_function
 from enum import Enum
+
 from bartez.entry import Entry, Coordinate, Orientation, Relation
-
-
-class SquareValues(Enum):
-    char = u'.'
-    block = u'\u2588'
-
+from bartez.symbols import SquareValues
 
 class Coordinates(Enum):
     horizontal = 0
@@ -35,28 +31,32 @@ def directions_to_index(direction):
 
 class Square:
     def __init__(self, x=-1, y=-1, value=SquareValues.char):
-        count = directions_to_index(Direction.count)
-        self.__neighbours = [None for _ in range(count)]
+        self.__neighbours = []
         self.__value = value
         self.__point = [x, y]
+        self.__neighbours = [None for _ in range(directions_to_index(Direction.count))]
 
+    def reset(self, x=-1, y=-1, value=SquareValues.char):
+        self.__neighbours = []
+        self.__value = value
+        self.__point = [x, y]
+        self.reset_neighbours()
+
+    def reset_neighbours(self):
+        self.__neighbours = [None for _ in range(directions_to_index(Direction.count))]
 
     def is_block(self):
         return self.__value == SquareValues.block
-
 
     def set_coordinates(self, coordinates):
         self.__point[0] = coordinates[0]
         self.__point[1] = coordinates[1]
 
-
     def get_coordinates(self):
         return self.__point[0]
 
-
     def set_neighbour(self, direction, neighbour):
         self.__neighbours[directions_to_index(direction)] = neighbour
-
 
     def set_neighbours(self, up, down, left, right):
         self.__neighbours[directions_to_index(Direction.up)] = up
@@ -64,24 +64,35 @@ class Square:
         self.__neighbours[directions_to_index(Direction.left)] = left
         self.__neighbours[directions_to_index(Direction.right)] = right
 
-
     def get_neighbour(self, direction):
         d = directions_to_index(direction)
         return self.__neighbours[d]
 
+    def has_char_neighbour_in_direction(self, direction):
+        d = directions_to_index(direction)
+        if self.__neighbours[d] == None:
+            return False
+        return self.__neighbours[d].is_block() == False
+
+    def has_char_neighbours(self):
+        has_char_neighbours = False
+        has_char_neighbours |= self.has_char_neighbour_in_direction(Direction.up)
+        has_char_neighbours |= self.has_char_neighbour_in_direction(Direction.down)
+        has_char_neighbours |= self.has_char_neighbour_in_direction(Direction.left)
+        has_char_neighbours |= self.has_char_neighbour_in_direction(Direction.right)
+        return has_char_neighbours
 
     def set_value(self, value):
         self.__value = value
 
-
-    def get_value(self):
+    def     get_value(self):
         return self.__value
 
-
     def count_squares_to_block(self, direction):
-        count = 0
+        assert(self.is_block() == False)
 
         current = self.__neighbours[directions_to_index(direction)]
+        count = 0
 
         while current is not None:
             if current.is_block() is True:
@@ -102,6 +113,27 @@ class Crossworld:
         self.__intersections = []
         self.set_geometry(rows, columns)
 
+    def get_rows_count(self):
+        return self.__rows
+
+    def get_columns_count(self):
+        return self.__columns
+
+    def has_char_neighbours_at_square(self, x, y):
+        return self.__grid[x][y].has_char_neighbours()
+
+    def has_squares_with_no_char_neighbours(self):
+        return len(self.get_squares_pos_with_no_char_neighbours()) > 0
+
+    def get_squares_pos_with_no_char_neighbours(self):
+        squares = []
+        for r in range(0, self.__rows):
+            for c in range(0, self.__columns):
+                if self.__grid[r][c].is_block():
+                    continue
+                if self.__grid[r][c].has_char_neighbours() == False:
+                    squares.append([r, c])
+        return squares
 
     def set_geometry(self, rows, columns):
         self.__rows = rows
@@ -109,9 +141,9 @@ class Crossworld:
         self.__grid = [[Square() for _ in range(columns)] for _ in range(rows)]
 
 
-    def set_value(self, row, column, value):
-        #  print "row: ", row, " column: ", column, " value: ", value
-        self.__grid[row][column] = Square(row, column, value)
+    def set_symbol(self, r, c, symbol):
+        #print("row: " + str(r) + " column: " + str(c) + " value: " + str(value))
+        self.__grid[r][c].set_value(symbol)
 
 
     def set_value_from_entry(self, entry):
@@ -137,7 +169,7 @@ class Crossworld:
             if r >= self.__rows:
                 continue
 
-            self.__grid[r][c].set_value(Square(r, c, SquareValues.block))
+            self.__grid[r][c].set_value(SquareValues.block)
 
 
     def set_entries(self, entries):
@@ -145,13 +177,14 @@ class Crossworld:
 
         for entry in entries:
             value = entry.get_value()
-            if str('.') in value:
+            if str(SquareValues.char) in value:
                 continue
             self.set_value_from_entry(entry)
 
 
     def get_entries(self):
         return self.__entries
+
 
     def get_entries_as_dict(self):
         entries_as_dict = {}
@@ -174,13 +207,9 @@ class Crossworld:
             for c in range(0, self.__columns):
                 char = self.__grid[r][c].get_value()
                 if char == SquareValues.block:
-                    """
-                    @todo replace unicode value, now it produces codec ascii error
-                    print('\u2588', end=' '),
-                    """
                     print('#', end=' '),
                 elif char == SquareValues.char:
-                    print(u'.', end=' '),
+                    print('.', end=' '),
                 else:
                     print(char, end=' '),
 
@@ -192,8 +221,11 @@ class Crossworld:
     def __update_neighbours(self):
         for r in range(0, self.__rows):
             for c in range(0, self.__columns):
-                square = self.__grid[r][c]
+                #square = self.__grid[r][c]
                 up, down, right, left = None, None, None, None
+
+                if self.__grid[r][c].is_block():
+                    continue
 
                 if (r > 0) and (r < self.__rows):
                     up = self.__grid[r-1][c]
@@ -207,11 +239,12 @@ class Crossworld:
                 if (c > 0) and (c < self.__columns):
                     left = self.__grid[r][c-1]
 
-                square.set_neighbours(up, down, left, right)
+                self.__grid[r][c].set_neighbours(up, down, left, right)
 
 
     def __update_entries(self):
         entries_count = 0
+        self.__entries.clear()
         for r in range(0, self.__rows):
             for c in range(0, self.__columns):
                 square = self.__grid[r][c]
@@ -227,7 +260,7 @@ class Crossworld:
                 is_vertical = (up == 0) and (down >= 1)
                 is_horizontal = (left == 0) and (right >= 1)
 
-                if is_horizontal is False and is_vertical is False:
+                if is_vertical is False and is_horizontal is False:
                     continue
 
                 entries_count += 1
@@ -241,7 +274,7 @@ class Crossworld:
                     entry.set_description(str(number) + " Horizontal")
                     entry.set_absolute_index(len(self.__entries))
                     self.__entries.append(entry)
-
+                    
                 if is_vertical is True:
                     coordinate = Coordinate(r, c)
                     orientation = Orientation.vertical
@@ -287,10 +320,10 @@ class Crossworld:
                         if coordinate_e.x() == coordinate_o.x() and coordinate_e.y() == coordinate_o.y():
                             intersection.append(coordinate_e)
 
-                if len(intersection) is 0:
+                if len(intersection) == 0:
                     continue
 
-                assert(len(intersection) is 1)
+                assert(len(intersection) == 1)
 
                 coordinate = intersection[0]
                 pos_in_entry = coordinate.x() - entry.x() if entry.horizontal() else coordinate.y() - entry.y()

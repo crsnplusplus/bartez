@@ -20,7 +20,7 @@ class BartezDictionaryTriePatternMatcher(object):
 
     def __init__(self):
         self.__language = ''
-        # this is  a reminder: self.__pages *are* dictionaries_by_word_length
+        # this is a reminder: self.__pages *are* dictionaries_by_word_length
         dictionaries_by_word_length = { }
         self.__pages = dictionaries_by_word_length
         self.__match_visitor = BartezDictionaryTrieNodeVisitorMatchPattern()

@@ -49,10 +49,18 @@ def get_test_crossword():
     crossword = Crossworld(geometry[0], geometry[1])
     for p in board:
         r, c = p[0], p[1]
-        crossword.set_value(r, c, SquareValues.block)
+        crossword.set_symbol(r, c, SquareValues.block)
     crossword.prepare()
     return crossword
 
+def get_test_crossword3x3():
+    board, geometry = boards.get_board3x3()
+    crossword = Crossworld(geometry[0], geometry[1])
+    for p in board:
+        r, c = p[0], p[1]
+        crossword.set_symbol(r, c, SquareValues.block)
+    crossword.prepare()
+    return crossword
 
 def get_test_graph(crossword):
     graph = nx.Graph()
@@ -71,12 +79,16 @@ def print_test_subgraph_info(_, name):
     print("\n* SubGraph info: " + name + "\n")
 
 
-def print_test_graph_info(graph, name):
+def print_test_graph_info(graph, name="Graph"):
+    if len(graph.nodes()) == 0:
+        print("Empty graph")
+        return
+
     print("\n* Graph info: " + name + "\n")
+    print("is_connected: " + str(nx.is_connected(graph)))
     print("is_biconnected: " + str(nx.is_biconnected(graph)))
     print("is_bipartite: " + str(nx.is_bipartite(graph)))
     print("is_chordal: " + str(nx.is_chordal(graph)))
-    print("is_connected: " + str(nx.is_connected(graph)))
     print("is_directed: " + str(nx.is_directed(graph)))
     print("is_directed_acyclic_graph: " + str(nx.is_directed_acyclic_graph(graph)))
     print("is_distance_regular: " + str(nx.is_distance_regular(graph)))

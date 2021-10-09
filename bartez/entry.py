@@ -1,5 +1,7 @@
 from enum import Enum
 
+from bartez.symbols import SquareValues
+
 
 class Orientation(Enum):
     horizontal = 0
@@ -48,7 +50,7 @@ class Entry:
         self.__number = number
         self.__length = length
         self.__is_valid = False
-        self.__value = '.' * length
+        self.__value = SquareValues.char * length
         self.__relations = []
         self.__description = ""
         self.__absolute_index = -1

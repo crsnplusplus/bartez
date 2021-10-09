@@ -1,5 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
+from bartez.symbols import SquareValues
+
 
 class BartezDictionaryTrieNodeVisitor(object):
     __metaclass__ = ABCMeta
@@ -123,7 +125,7 @@ class BartezDictionaryTrieNodeVisitorMatchWord(BartezDictionaryTrieNodeVisitor):
         pos = self.get_distance_with_root(node)
         children = node.get_children()
 
-        letter = '#' if pos == len(self.__word) else self.__word[pos]
+        letter = SquareValues.block if pos == len(self.__word) else self.__word[pos]
         assert(pos <= len(self.__word))
 
         if letter not in children:
@@ -160,10 +162,10 @@ class BartezDictionaryTrieNodeVisitorMatchPattern(BartezDictionaryTrieNodeVisito
         pos = self.get_distance_with_root(node)
         children = node.get_children()
 
-        letter = '#' if pos == len(self.__pattern) else self.__pattern[pos]
+        letter = SquareValues.block if pos == len(self.__pattern) else self.__pattern[pos]
         assert(pos <= len(self.__pattern))
 
-        if letter is '.':
+        if letter == SquareValues.char:
             # continue for every child
             for child in children:
                 children[child].accept(self)

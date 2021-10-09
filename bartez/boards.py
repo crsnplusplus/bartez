@@ -37,3 +37,9 @@ def get_default_board():
     geometry = [12, 18]
 
     return points, geometry
+
+def get_board3x3():
+    points = []
+    points.append([1, 1])
+    geometry = [3, 3]
+    return points, geometry
