@@ -61,18 +61,41 @@ class Entry:
     def get_coordinate(self):
         return self.__coordinate
 
-    def contains_point(self, px, py):
-        desc = self.get_description()
+    def get_coordinate_end(self):
+        r = self.get_coordinate_x()
+        c = self.get_coordinate_y()
+        if (self.is_horizontal()):
+            c = c + self.length() - 1
+        else:
+            r = r + self.length() - 1
+        return Coordinate(r, c)
+
+
+    def contains_point(self, r, c):
+        #desc = self.get_description()
         ish = self.is_horizontal()
-        x_start = self.get_coordinate_x()
-        x_end = (x_start + self.__length - 1) if self.is_horizontal() else x_start
-        y_start = self.get_coordinate_y()
-        y_end = (y_start + self.__length - 1) if self.is_vertical() else y_start
-        contained =  (px >= x_start) and (px <= x_end)
-        contained &= (py >= y_start) and (py <= y_end)
+
+        if ish:
+            c_start = self.get_coordinate_y()
+            c_end = c_start + self.length() - 1
+            r_start = self.get_coordinate_x()
+            r_end = r_start
+            contained =  (c >= c_start) and (c <= c_end)
+            contained &= r == r_start
+        else:
+            r_start = self.get_coordinate_x()
+            r_end = r_start + self.length() - 1
+            c_start = self.get_coordinate_y()
+            contained = (r >= r_start) and (r <= r_end)
+            contained &= c == c_start
+
+        #if contained:
+        #    print(desc + " contains -> [ " + str(r) + " " + str(c) +" ]" )
+
         return contained
 
     def set_value_from_point(self, px, py, value):
+        desc = self.get_description()
         if self.contains_point(px, py) == False:
             return
 
@@ -81,7 +104,7 @@ class Entry:
 
         ish = self.is_horizontal()
 
-        pattern_index = px - ex if self.is_horizontal() else py - ey
+        pattern_index = py - ey if self.is_horizontal() else px - ex
         pattern = list(self.get_value())
         pattern[pattern_index] = value
         string = ''.join(str(ch) for ch in pattern)

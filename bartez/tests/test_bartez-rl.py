@@ -9,7 +9,7 @@ from tensorforce.agents import Agent
 from tensorforce.agents import DoubleDQN
 from tensorforce.execution import Runner
 from collections import namedtuple
-from random import randrange, random
+from random import randrange, random, randint
 
 from bartez.graph.graph import BartezGraph
 from bartez.crossword import Crossworld
@@ -176,22 +176,12 @@ class CrosswordModel(object):
         
         value = self.__crossword.get_value(row, col)
         if (char == SquareValues.block or value == SquareValues.block or  char == value) == False:
-            print("##################################################")
-            print("##################################################")
-            print("##################################################")
-            self.__crossword.print_info()
-            self.__crossword.print_crossword()
-            print("#########################")
-            print("#########################")
-
             self.__crossword.set_symbol(row, col, char)
             self.__crossword.update_entries_from_board_value(row, col, char)
-            self.__crossword.print_info()
-            self.__crossword.print_crossword()
-            x = 0
+            #self.__crossword.print_info()
+            #self.__crossword.print_crossword()
         
         entries = self.__crossword.get_entries()
-        #self.__crossword.set_board_values_from_entries(entries)
 
         for e in entries:
             pattern = e.get_value()
@@ -201,9 +191,9 @@ class CrosswordModel(object):
 
             if matches_count == 1 and blank_count == 0:
                 reward += entry_good_reward
-                print("Complete entry found [" + str(e.get_coordinate_x()) + ","
-                                               + str(e.get_coordinate_y()) + "] " + e.get_description() + " - " + e.get_value())
-                self.print_crossword()
+                #print("Complete entry found [" + str(e.get_coordinate_x()) + ","
+                #                               + str(e.get_coordinate_y()) + "] " + e.get_description() + " - " + e.get_value())
+                #self.print_crossword()
             else:
                 reward += entry_bad_malus
 
@@ -322,7 +312,7 @@ def start():
     episodes_count = 5000
     max_moves = environment.get_squares_count() * 3
     total_count = 0
-    update_frequency = 100
+    update_frequency = 1000
 
     # Train for episodes_count episodes
     for episode in range(episodes_count):
@@ -350,15 +340,14 @@ def start():
                 elif value == SquareValues.char:
                     value = '.'
 
-                if total_count % update_frequency == 0:
-                #if reward > 0:
-                    print("################################")
-                    print("episode: " + str(episode) + "/" + str(episodes_count))
-                    print("iteration: " + str(total_count))
-                    print("perform: ["+str(r) +"]["+str(c)+"] = " + str(value) + " -> " + symbol)
-                    print("reward: " + str(reward))
-                    environment.print_crossword()
-                    print("")
+            if total_count % update_frequency == 0 or reward > 0:
+                print("################################")
+                print("episode: " + str(episode) + "/" + str(episodes_count))
+                print("iteration: " + str(total_count))
+                print("perform: ["+str(r) +"]["+str(c)+"] = " + str(value) + " -> " + symbol)
+                print("reward: " + str(reward))
+                environment.print_crossword()
+                print("")
             total_count += 1
             moves += 1
 
@@ -409,6 +398,36 @@ def start2():
         crossword.print_info()
         crossword.print_crossword()
         continue
+
+def start3():
+    crossword = Crossworld(5, 4)
+    crossword.prepare()
+    crossword.print_info()
+    crossword.clear_all_non_blocks()
+    crossword.print_crossword()
+    rows = crossword.get_rows_count()
+    cols = crossword.get_columns_count()
+
+    letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'k', 'j', 'i', 'l',
+               'm', 'n', 'o', 'p', 'r', 's', 't', 'u', 'w', 'x', 'y', 'z']
+    entries = crossword.get_entries()
+    #for i in range(10):
+        #r = randint(0, crossword.get_rows_count() - 1)
+        #c = randint(0, crossword.get_columns_count() - 1)
+        #letter = letters[randint(0, len(letters))]
+    i = 0
+    for r in range(rows):
+        for c in range(cols):
+            letter = letters[i]
+            print("[" + str(r) + ", " + str(c) + "]" + " -> " + letter)
+            crossword.set_symbol(r, c, letter)
+            crossword.update_entries_from_board_value(r, c, letter)
+        
+            #crossword.set_board_values_from_entries(entries)
+            crossword.print_info()
+            crossword.print_crossword()
+            i = i + 1
+            continue
 
 start()
 

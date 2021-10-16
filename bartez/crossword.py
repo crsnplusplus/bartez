@@ -385,7 +385,19 @@ class Crossworld:
 
     def __print_entries(self):
         for _, e in enumerate(self.__entries):
-            print(e.absolute_index(), ": ", e.get_description() + " [" + e.get_value() + "]")
+            value = e.get_value().replace("@", ".")
+            desc = e.get_description() 
+            desc = desc + "  " if e.is_vertical() else desc
+            coordinate = e.get_coordinate()
+            coordinate_str = str(coordinate.x()) + ", " + str(coordinate.y())
+            coordinate_end = e.get_coordinate_end()
+            coordinate_end_str = str(coordinate_end.x()) + ", " + str(coordinate_end.y())
+            print(str(e.absolute_index()) + 
+                    ": " + desc + 
+                    " [" + value + "]" +  
+                    " r,c: [" + coordinate_str +"] -> " + 
+                    "[" + coordinate_end_str +"]"
+            )
         return
 
 
