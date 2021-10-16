@@ -1,9 +1,9 @@
 from collections import namedtuple
 
-# SquareValue.block = ? = Alphabet.FIRST - 2
-# SquareValue.char = @ = Alphabet.FIRST - 1
+# SquareValue.block = ? = 'A' - 2
+# SquareValue.char = @ = 'A' - 1
 SquareValuesTuple = namedtuple('SquareValue', ['block', 'char'])
-SquareValues = SquareValuesTuple(chr(ord('?')), chr(ord('@') ))
+SquareValues = SquareValuesTuple(chr(ord('A') - 2), chr(ord('A') - 1) )
 
 # chr(ord(Symbols.FIRST)) == ?
 # chr(ord(Symbols.LAST)) == Z
@@ -11,9 +11,6 @@ SquareValues = SquareValuesTuple(chr(ord('?')), chr(ord('@') ))
 # with an offset
 SymbolsTuple = namedtuple('Symbols', ['FIRST', 'LAST', 'extra_symbols_count'])
 Symbols = SymbolsTuple(SquareValues.block, 'Z', 2)
-
-AlphabetTuple = namedtuple('Alphabet', ['FIRST', 'LAST'])
-Alphabet = AlphabetTuple('A', 'Z')
 
 
 def get_alphabet_base0():

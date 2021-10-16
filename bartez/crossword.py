@@ -108,7 +108,7 @@ class Crossworld:
     def __init__(self, rows=0, columns=0):
         self.__rows = 0
         self.__columns = 0
-        self.__grid = []
+        self.__board = []
         self.__entries = []
         self.__intersections = []
         self.set_geometry(rows, columns)
@@ -120,7 +120,7 @@ class Crossworld:
         return self.__columns
 
     def has_char_neighbours_at_square(self, x, y):
-        return self.__grid[x][y].has_char_neighbours()
+        return self.__board[x][y].has_char_neighbours()
 
     def has_squares_with_no_char_neighbours(self):
         return len(self.get_squares_pos_with_no_char_neighbours()) > 0
@@ -129,33 +129,33 @@ class Crossworld:
         squares = []
         for r in range(0, self.__rows):
             for c in range(0, self.__columns):
-                if self.__grid[r][c].is_block():
+                if self.__board[r][c].is_block():
                     continue
-                if self.__grid[r][c].has_char_neighbours() == False:
+                if self.__board[r][c].has_char_neighbours() == False:
                     squares.append([r, c])
         return squares
 
     def set_geometry(self, rows, columns):
         self.__rows = rows
         self.__columns = columns
-        self.__grid = [[Square() for _ in range(columns)] for _ in range(rows)]
+        self.__board = [[Square() for _ in range(columns)] for _ in range(rows)]
 
 
     def set_symbol(self, r, c, symbol):
         #print("row: " + str(r) + " column: " + str(c) + " value: " + str(value))
-        self.__grid[r][c].set_value(symbol)
+        self.__board[r][c].set_value(symbol)
 
 
-    def set_value_from_entry(self, entry):
+    def set_board_value_from_entry(self, entry):
         for i, char in enumerate(list(entry.value())):
             row = entry.x() if entry.horizontal() else entry.x() + i
             col = entry.y() + i if entry.horizontal() else entry.y()
-            self.__grid[row][col].set_value(char)
+            self.__board[row][col].set_value(char)
         return
 
 
     def get_value(self, row, column):
-        return self.__grid[row][column].get_value()
+        return self.__board[row][column].get_value()
 
 
     def set_blocks(self, blocks):
@@ -169,17 +169,23 @@ class Crossworld:
             if r >= self.__rows:
                 continue
 
-            self.__grid[r][c].set_value(SquareValues.block)
+            self.__board[r][c].set_value(SquareValues.block)
 
 
-    def set_entries(self, entries):
+    def update_entries_from_board_value(self, row, col, value):
+        for entry in self.__entries:
+            entry.set_value_from_point(row, col, value)
+
+
+    def set_board_values_from_entries(self, entries, bypassEmptyCheck=False):
         self.__entries = entries
 
         for entry in entries:
             value = entry.get_value()
-            if str(SquareValues.char) in value:
+            if bypassEmptyCheck == False and str(SquareValues.char) in value:
                 continue
-            self.set_value_from_entry(entry)
+
+            self.set_board_value_from_entry(entry)
 
 
     def get_entries(self):
@@ -194,10 +200,36 @@ class Crossworld:
 
 
     def clear_all_non_blocks(self):
-        for square_column in self.__grid:
+        for square_column in self.__board:
             for square in square_column:
                 if square.is_block() is False:
                     square.set_value(SquareValues.char)
+
+
+    def get_entries_intersection(self, c, entry, other):
+        pos_in_entry = c.x() - entry.x() if entry.vertical() else c.y() - entry.y()
+        pos_in_other = c.x() - other.x() if other.vertical() else c.y() - other.y()
+        return pos_in_entry, pos_in_other
+
+
+    def apply_entry_on_relations(self, entry, pattern):
+        entries = self.__entries
+        entry.set_value(pattern)
+        #pattern = entry.value()
+        pattern_as_list = list(pattern)
+        #print entry.description(), ":"
+        #print "  x: ", entry.x(), ", y: ", entry.y()
+
+        for _, relation in enumerate(entry.relations()):
+            other_index = relation.index()
+            other = entries[other_index]
+            other_pattern = other.value()
+            other_pattern_as_list = list(other_pattern)
+            print("  relation with ", other.description(), ":")
+            pos_in_entry, pos_in_other = self.get_entries_intersection(relation.coordinate(), entry, other)
+            other_pattern_as_list[pos_in_other] = pattern_as_list[pos_in_entry]
+            other_pattern_as_string = "".join(other_pattern_as_list)
+            other.set_value(other_pattern_as_string)
 
 
     def print_crossword(self):
@@ -205,7 +237,7 @@ class Crossworld:
 
         for r in range(0, self.__rows):
             for c in range(0, self.__columns):
-                char = self.__grid[r][c].get_value()
+                char = self.__board[r][c].get_value()
                 if char == SquareValues.block:
                     print('#', end=' '),
                 elif char == SquareValues.char:
@@ -224,22 +256,22 @@ class Crossworld:
                 #square = self.__grid[r][c]
                 up, down, right, left = None, None, None, None
 
-                if self.__grid[r][c].is_block():
+                if self.__board[r][c].is_block():
                     continue
 
                 if (r > 0) and (r < self.__rows):
-                    up = self.__grid[r-1][c]
+                    up = self.__board[r-1][c]
 
                 if (c >= 0) and (c < self.__columns - 1):
-                    right = self.__grid[r][c+1]
+                    right = self.__board[r][c+1]
 
                 if (r >= 0) and (r < self.__rows - 1):
-                    down = self.__grid[r+1][c]
+                    down = self.__board[r+1][c]
 
                 if (c > 0) and (c < self.__columns):
-                    left = self.__grid[r][c-1]
+                    left = self.__board[r][c-1]
 
-                self.__grid[r][c].set_neighbours(up, down, left, right)
+                self.__board[r][c].set_neighbours(up, down, left, right)
 
 
     def __update_entries(self):
@@ -247,7 +279,7 @@ class Crossworld:
         self.__entries.clear()
         for r in range(0, self.__rows):
             for c in range(0, self.__columns):
-                square = self.__grid[r][c]
+                square = self.__board[r][c]
 
                 if square.is_block():
                     continue
@@ -343,7 +375,7 @@ class Crossworld:
     def __print_neighbours(self):
         for r in range(0, self.__rows):
             for c in range(0, self.__columns):
-                square = self.__grid[r][c]
+                square = self.__board[r][c]
                 print("Square: ", r, ", ", c)
                 print("  up", square.get_neighbour(Direction.up))
                 print("  right", square.get_neighbour(Direction.right))
@@ -352,8 +384,8 @@ class Crossworld:
 
 
     def __print_entries(self):
-        for index, entry in enumerate(self.__entries):
-            print(index, ": ", entry.get_description())
+        for _, e in enumerate(self.__entries):
+            print(e.absolute_index(), ": ", e.get_description() + " [" + e.get_value() + "]")
         return
 
 

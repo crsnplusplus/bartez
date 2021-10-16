@@ -61,6 +61,33 @@ class Entry:
     def get_coordinate(self):
         return self.__coordinate
 
+    def contains_point(self, px, py):
+        desc = self.get_description()
+        ish = self.is_horizontal()
+        x_start = self.get_coordinate_x()
+        x_end = (x_start + self.__length - 1) if self.is_horizontal() else x_start
+        y_start = self.get_coordinate_y()
+        y_end = (y_start + self.__length - 1) if self.is_vertical() else y_start
+        contained =  (px >= x_start) and (px <= x_end)
+        contained &= (py >= y_start) and (py <= y_end)
+        return contained
+
+    def set_value_from_point(self, px, py, value):
+        if self.contains_point(px, py) == False:
+            return
+
+        ex = self.get_coordinate_x()
+        ey = self.get_coordinate_y()
+
+        ish = self.is_horizontal()
+
+        pattern_index = px - ex if self.is_horizontal() else py - ey
+        pattern = list(self.get_value())
+        pattern[pattern_index] = value
+        string = ''.join(str(ch) for ch in pattern)
+        self.set_value(string)
+
+
     def get_coordinate_x(self):
         return self.__coordinate.x()
 

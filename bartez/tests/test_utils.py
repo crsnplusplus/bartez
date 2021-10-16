@@ -8,6 +8,8 @@ import networkx as nx
 
 test_trie = None
 test_trie_small = None
+test_trie_nouns_it = None
+test_trie_corriere_it = None
 
 def get_test_trie():
     global test_trie
@@ -16,20 +18,39 @@ def get_test_trie():
     return test_trie
 
 
+def get_test_trie_nouns_it():
+    global test_trie_nouns_it
+    if test_trie_nouns_it is None:
+        test_trie_nouns_it = bartez_trie_import_from_file(get_test_dictionary_nouns_path(), "italian")
+    return test_trie_nouns_it
+
+
+def get_test_trie_corriere_it():
+    global test_trie_corriere_it
+    if test_trie_corriere_it is None:
+        test_trie_corriere_it = bartez_trie_import_from_file(get_test_dictionary_corriere_path(), "italian")
+    return test_trie_corriere_it
+
+
 def get_test_trie_small():
     global test_trie_small
     if test_trie_small is None:
         test_trie_small = bartez_trie_import_from_file(get_test_dictionary_path_1000(), "italian")
     return test_trie_small
 
-
 def get_test_dictionary_path():
     return "words.txt"
+
+
+def get_test_dictionary_nouns_path():
+    return "words_nouns_it.txt"
 
 
 def get_test_dictionary_path_1000():
     return "words_test_1000.txt"
 
+def get_test_dictionary_corriere_path():
+    return "words_test_corriere.txt"
 
 def get_test_dictionary():
     return Dictionary("italian", get_test_dictionary_path())

@@ -41,8 +41,8 @@ class CrosswordModel(object):
     def get_actions_per_square_count(self):
         return len(self.__square_action_vec)
     
-    def get_actions_count(self):
-        return self.get_squares_count() * len(self.__square_action_vec)
+    #def get_actions_count(self):
+    #    return self.get_squares_count() * len(self.__square_action_vec)
     
     def print_info(self):
         self.__crossword.print_crossword()

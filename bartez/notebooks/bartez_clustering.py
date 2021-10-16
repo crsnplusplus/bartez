@@ -115,7 +115,7 @@ for cluster_model_result in results:
             value = model_entries[model_result].get_value()
             if model_cluster_index >= 10: model_cluster_index = model_cluster_index % 10
             model_entries[model_result].set_value(str(model_cluster_index)*len(value))
-        crossword.set_entries(model_entries)
+        crossword.set_board_values_from_entries(model_entries)
 
     crossword.print_crossword()
     crossword.clear_all_non_blocks()

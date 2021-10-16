@@ -1,18 +1,22 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+from os import environ
 import numpy as np
 import networkx as nx
 from tensorforce.environments import Environment
 from tensorforce.agents import Agent
+from tensorforce.agents import DoubleDQN
 from tensorforce.execution import Runner
 from collections import namedtuple
+from random import randrange, random
 
 from bartez.graph.graph import BartezGraph
 from bartez.crossword import Crossworld
 from bartez.symbols import SquareValues, Symbols, symbols_to_base0, base0_to_symbols
 from bartez.dictionary.trie import BartezDictionaryTrie
 from bartez.dictionary.trie_pattern import BartezDictionaryTriePatternMatcher
+from bartez.dictionary.trie_dust import DustDictionaryTriePatternMatcher, dust_trie_import_from_file
 import bartez.tests.test_utils as test_utils
 
 from copy import copy
@@ -24,15 +28,21 @@ ActionList = ActionListTuple(ord(Symbols.FIRST), ord(Symbols.LAST), 0)
 
 class CrosswordModel(object):
     def __init__(self):
-        self.__crossword = Crossworld(4, 4)
+        self.__crossword = Crossworld(5, 4)
         #self.__crossword = test_utils.get_test_crossword3x3()
         #self.__crossword = test_utils.get_test_crossword()
-        self.__actions = range(ActionList.FIRST_ACTION, ActionList.LAST_ACTION)
         #self.__dictionary = test_utils.get_test_dictionary()
-        self.__trie = test_utils.get_test_trie()
-        self.__matcher = BartezDictionaryTriePatternMatcher()
-        self.__matcher.load_from_dictionary_trie(self.__trie)
-    
+        #self.__trie = test_utils.get_test_trie()
+        #self.__trie = test_utils.get_test_trie_corriere_it()
+        #self.__trie = test_utils.get_test_trie_nouns_it()
+        #self.__matcher = BartezDictionaryTriePatternMatcher()
+        #self.__matcher.load_from_dictionary_trie(self.__trie)
+        self.__matcher = dust_trie_import_from_file(test_utils.get_test_dictionary_corriere_path())
+        rows = self.get_rows_count()
+        cols = self.get_columns_count()
+        actions = self.get_actions_per_square_count()
+        self.__actions = [ [r, c, a] for r in range(0, rows) for c in range(0, cols) for a in range(0, actions) ]
+
 
     def get_rows_count(self):
         return self.__crossword.get_rows_count()
@@ -47,17 +57,19 @@ class CrosswordModel(object):
     
 
     def get_actions_per_square_count(self):
-        return len(self.__actions)
+        return len(range(ActionList.FIRST_ACTION, ActionList.LAST_ACTION + 1))
     
 
     def get_actions_count(self):
-        return len(self.__actions) * self.get_squares_count()
+        return len(self.__actions)
     
-    
-    def get_action_space(self):
-        d = dict( actions=dict(type='int', num_values=self.get_actions_per_square_count(), shape=(self.get_squares_count())) )
-        return d
 
+    def get_action_space(self):
+        return {
+            "r": dict(type="int", num_values=self.get_rows_count()),
+            "c": dict(type="int", num_values=self.get_columns_count()),
+            "symbol": dict(type="int", num_values=self.get_actions_per_square_count()),
+        }
 
     def get_squares_pos_with_no_char_neighbours(self):
         return self.__crossword.get_squares_pos_with_no_char_neighbours()
@@ -67,46 +79,77 @@ class CrosswordModel(object):
         return dict ( states=dict(type='int', num_values=self.get_actions_per_square_count(), shape=(self.get_squares_count(),)) )
 
 
+    def get_value(self, r, c):
+        return self.__crossword.get_value(r, c)
+
+
     def reset(self):
+        self.__reset_round = True
         squares_count = self.get_squares_count()
-        blocks_count = int(squares_count * (np.random.sample(1) * 0.4 + 0.2))
+        #blocks_count = int(squares_count * (np.random.sample(1) * 0.3 + 0.1))
+        blocks_count = 1
         char_count = squares_count - blocks_count
         char_symbol = SquareValues.char
         block_symbol = SquareValues.block
-        distribution = np.array([char_symbol] * char_count + [block_symbol] * blocks_count)
-        np.random.shuffle(distribution)
-        
-        print(distribution)
+        #distribution = np.array([char_symbol] * char_count + [block_symbol] * blocks_count)
+        #np.random.shuffle(distribution)
+        distribution = np.array([char_symbol] * squares_count)
+        distribution[4] = block_symbol 
+        #print(distribution)
         cols = self.get_columns_count()
         for i in range(len(distribution)):
             row = int(i / cols)
             col = int(i % cols)
             symbol = distribution[i]
             self.__crossword.set_symbol(row, col, symbol)
-        self.__crossword.print_crossword()
+        #self.__crossword.print_crossword()
         self.__crossword.prepare()
 
         if self.__crossword.has_squares_with_no_char_neighbours():
             squares = self.__crossword.get_squares_pos_with_no_char_neighbours()
             self.__crossword.set_blocks(squares)
             self.__crossword.prepare()
-            self.__crossword.print_crossword()
+            #self.__crossword.print_crossword()
             assert(self.__crossword.has_squares_with_no_char_neighbours() == False)
         
         entries = self.__crossword.get_entries()
-#        print("Entries (" + str(len(entries)) + ")" )
-#        print("\n".join([(e.get_description() + " [" +
-#                         str(e.get_coordinate_x()) + " " +
-#                         str(e.get_coordinate_y()) + "] ") for e  in entries]))
 
         if len(entries)  < 2:
-            print("Not enough nodes (< 2), retrying")
+            #print("Not enough nodes (< 2), retrying")
             return self.reset()
 
         graph = test_utils.get_test_graph(self.__crossword)
         if nx.is_connected(graph) == False:
-            print("Not connected, retrying")
+            #print("Not connected, retrying")
             return self.reset()
+
+        if (random() > 1):
+            entries_count = len(entries)
+            random_entry = entries[randrange(entries_count)]
+            random_words = self.__matcher.get_matches(random_entry.get_value())
+            matches_count = len(random_words)
+            random_word = random_words[randrange(matches_count)]
+            random_word_len = len(random_word)
+            random_word_list = list(random_word)
+            random_word_list[randrange(random_word_len)] = SquareValues.char
+            random_word = ''.join([str(elem) for elem in random_word_list])
+            random_entry.set_value(random_word)
+            self.__crossword.set_board_value_from_entry(random_entry)
+
+        if (random() > 1):
+            entries_count = len(entries)
+            random_entry = entries[randrange(entries_count)]
+            random_words = self.__matcher.get_matches(random_entry.get_value())
+            matches_count = len(random_words)
+            random_word = random_words[randrange(matches_count)]
+            random_word_len = len(random_word)
+            random_word_list = list(random_word)
+            random_word_list[randrange(random_word_len)] = SquareValues.char
+            random_word = ''.join([str(elem) for elem in random_word_list])
+            #print("Random word: " + random_word)
+            random_entry.set_value(random_word)
+            
+            self.__crossword.set_board_value_from_entry(random_entry)
 
         return self.get_states()
 
@@ -119,88 +162,87 @@ class CrosswordModel(object):
                 symbol = self.__crossword.get_value(r, c)
                 idx = r * cols + c
                 grid_states[idx] = ord(symbol) - ActionList.FIRST_ACTION
-        #return grid_states
-        #return dict ( states=dict(type='int', num_values=self.get_actions_per_square_count(), shape=(self.get_squares_count(),)) )
         d = dict ( states=grid_states )
         return d
         
 
-    def apply_get_reward(self, row, col, char):
+    def apply_and_get_reward(self, row, col, char):
+        # rewards
+        entry_good_reward = 0.4
+        entry_bad_malus  = -0.04
+        blank_malus      = -0.1
+        total_blank_count = 0
         reward = 0
         
         value = self.__crossword.get_value(row, col)
-        if char == SquareValues.block and value == SquareValues.block:
-            reward += 0.01
-        elif char == SquareValues.block:
-            return -1
-        elif value == SquareValues.block:
-            return -1
-        
-        self.__crossword.set_symbol(row, col, char)
+        if (char == SquareValues.block or value == SquareValues.block or  char == value) == False:
+            print("##################################################")
+            print("##################################################")
+            print("##################################################")
+            self.__crossword.print_info()
+            self.__crossword.print_crossword()
+            print("#########################")
+            print("#########################")
 
+            self.__crossword.set_symbol(row, col, char)
+            self.__crossword.update_entries_from_board_value(row, col, char)
+            self.__crossword.print_info()
+            self.__crossword.print_crossword()
+            x = 0
+        
         entries = self.__crossword.get_entries()
-        # rewards
-#        single_word_reward = 1 / len(entries)
-        good_word_reward = 0.2
-        blank_reward = -0.2
-        bad_pattern_reward = -0.1
-        good_pattern_reward = 0.1
-        
-        total_blank_count = 0
-        
-        for _, e in enumerate(entries):
+        #self.__crossword.set_board_values_from_entries(entries)
+
+        for e in entries:
             pattern = e.get_value()
             blank_count = pattern.count(SquareValues.char)
-            total_blank_count += blank_count
             matches = self.__matcher.get_matches(pattern)
             matches_count = len(matches)
 
-            entry_reward = 0
             if matches_count == 1 and blank_count == 0:
-                entry_reward += good_word_reward
-            
-            if matches_count == 0:
-                #entry_reward += bad_pattern_reward * (len(pattern) - blank_count)
-                entry_reward += bad_pattern_reward
+                reward += entry_good_reward
+                print("Complete entry found [" + str(e.get_coordinate_x()) + ","
+                                               + str(e.get_coordinate_y()) + "] " + e.get_description() + " - " + e.get_value())
+                self.print_crossword()
             else:
-                #entry_reward += good_pattern_reward * (len(pattern) - blank_count)
-                entry_reward += good_pattern_reward
+                reward += entry_bad_malus
 
-            reward += entry_reward
-            reward += blank_count * blank_reward
+            reward += blank_count * blank_malus
+            total_blank_count += blank_count
 
         return reward
 
 
     def is_terminal(self):
         entries = self.__crossword.get_entries()
-        for _, e in enumerate(entries):
+        complete_entries = 0
+        for e in entries:
             pattern = e.get_value()
             blank_count = pattern.count(SquareValues.char)
-            matches = self.__matcher.get_matches(pattern)
-            if blank_count == 0 and len(matches) == 1:
-                continue
-            else:
-                return False
-        return True
+            if blank_count == 0:
+                complete_entries = complete_entries + 1
+
+        is_terminal = complete_entries == len(entries)
+        if is_terminal:
+            print("Completed")
+            self.print_crossword()
+        return is_terminal
 
 
-    def perform_actions(self, actions):
-        #row, col, char = self.unpack_action(action)
-        reward = 0
-        action_index = 0
-        for r in range(0, self.get_rows_count()):
-            for c in range(0, self.get_columns_count()):
-                action = chr ( actions['actions'][action_index] + ActionList.FIRST_ACTION )
-                reward += self.apply_get_reward(r, c, action)
-                action_index = action_index + 1
+    def perform_actions(self, action):
+        r = action["r"]
+        c = action["c"]
+        symbol = chr(action["symbol"] + ActionList.FIRST_ACTION)
+        reward = self.apply_and_get_reward(r, c, symbol)
         return reward
 
 
-    def print_info(self):
+    def print_crossword(self):
+        entries = self.__crossword.get_entries()
+        self.__crossword.clear_all_non_blocks()
+        self.__crossword.set_board_values_from_entries(entries, True)
+        self.__crossword.print_info()
         self.__crossword.print_crossword()
-        print("rows: " + str(self.get_rows_count()))
-        print("columns: " + str(self.get_columns_count()))
 
 
 #########################################
@@ -217,22 +259,27 @@ class CrosswordEnvironment(Environment):
         print("Actions per square: " + str(self.__model.get_actions_per_square_count()))
         
 
+    def get_squares_count(self):
+        return self.__model.get_squares_count()
+
+
+    def get_actions_per_square_count(self):
+        return self.__model.get_actions_per_square_count()
+
+
+    def get_value(self, r, c):
+        return self.__model.get_value(r, c)
+
+
     def states(self):
-        #num_values = self.__model.get_actions_per_square_count()
-        #return dict ( states=dict(type='int', num_values=num_values, shape=(self.NUM_STATES,)) )
         return self.__model.get_state_space()
 
 
     def actions(self):
-        #return dict(type='int', num_values=self.NUM_ACTIONS)
-        #return dict ( states=dict(type='int', num_values=num_values, shape=(self.NUM_STATES,)) )
         return self.__model.get_action_space()
 
 
     def reset(self):
-        #state = np.random.random(size=(self.NUM_STATES,))
-        #states = dict (states=new_states)
-        #return states
         return self.__model.reset()
     
 
@@ -244,56 +291,96 @@ class CrosswordEnvironment(Environment):
 
     
     def print_crossword(self):
-        self.__model.print_info()
-
+        self.__model.print_crossword()
 
 
 def start():
     environment = CrosswordEnvironment()
-    episodes_count = 10000
-    states = environment.reset()
 
     agent_adam = Agent.create(
-        agent='tensorforce', environment=environment, update=64,
+        agent='tensorforce', environment=environment, update=64, memory=10000,
         optimizer=dict(optimizer='adam', learning_rate=1e-3),
         objective='policy_gradient', reward_estimation=dict(horizon=20)
     )
 
-    agent_ppo = Agent.create(
-        agent='ppo', environment=environment, batch_size=10, learning_rate=1e-3, max_episode_timesteps=episodes_count
+    agent_ddqn = Agent.create(
+        agent='ddqn',
+        environment=environment,
+        batch_size=100,
+        memory=100000,
+        horizon=1,
+        exploration=0.3,
+        learning_rate=1e-4,
+        summarizer=dict(
+            directory='./data/summaries',
+            summaries=['all']
+        ),
     )
 
-    agent = agent_adam
+    agent = agent_ddqn
+
+    episodes_count = 5000
+    max_moves = environment.get_squares_count() * 3
+    total_count = 0
+    update_frequency = 100
 
     # Train for episodes_count episodes
-    max_count = 1000
-    for _ in range(episodes_count):
+    for episode in range(episodes_count):
         states = environment.reset()
-        initial_states = copy(states)
+        #print("********************************")
+        #print("New board:")
+        #print(" - episode: " + str(episode) + "/" + str(episodes_count))
+        #environment.print_crossword()
         terminal = False
-        count = 0
-        while not terminal and count != max_count:
-            actions = agent.act(states=states)
-            states, terminal, reward = environment.execute(action=actions)
-            agent.observe(terminal=terminal, reward=reward)
-            count += 1
-            environment.print_crossword()
-            print("iteration: " + str(count))
-            print("reward: " + str(reward))
+        moves = 0
+        while not terminal and moves < max_moves:
+            action = agent.act(states=states)
+            r = action["r"]
+            c = action["c"]
+            value = environment.get_value(r, c)
             
+            states, terminal, reward = environment.execute(action=action)
+            agent.observe(terminal=terminal, reward=reward)
+
+            symbol = chr(action["symbol"] + ActionList.FIRST_ACTION)
+
+            if (value == SquareValues.block or symbol == SquareValues.block or value == symbol) == False:
+                if value == SquareValues.block:
+                    value = '#'
+                elif value == SquareValues.char:
+                    value = '.'
+
+                if total_count % update_frequency == 0:
+                #if reward > 0:
+                    print("################################")
+                    print("episode: " + str(episode) + "/" + str(episodes_count))
+                    print("iteration: " + str(total_count))
+                    print("perform: ["+str(r) +"]["+str(c)+"] = " + str(value) + " -> " + symbol)
+                    print("reward: " + str(reward))
+                    environment.print_crossword()
+                    print("")
+            total_count += 1
+            moves += 1
+
+    print("-------------")
+    environment.print_crossword()
+
+    print("Evaluation:")
     # Evaluate for episodes_count episodes
     sum_rewards = 0.0
     for _ in range(episodes_count):
         states = environment.reset()
         internals = agent.initial_internals()
         terminal = False
-        while not terminal:
-            actions, internals = agent.act(
+        moves = 0
+        while not terminal and moves < max_moves:
+            action, internals = agent.act(
                 states=states, internals=internals,
                 independent=True, deterministic=True
             )
-            states, terminal, reward = environment.execute(actions=actions)
+            states, terminal, reward = environment.execute(action=action)
             sum_rewards += reward
+            moves = moves + 1
 
     print('Mean episode reward:', sum_rewards / episodes_count)
 
@@ -302,4 +389,27 @@ def start():
     environment.close()
 
 
+def start2():
+    crossword = Crossworld(5, 4)
+    crossword.prepare()
+    crossword.print_info()
+    crossword.clear_all_non_blocks()
+    crossword.print_crossword()
+
+    letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'l', 'm', 'n', 'o', 'p' ]
+    entries = crossword.get_entries()
+    for e in entries:
+        new_pattern = len(e.get_value()) * letters[e.absolute_index()]
+        #crossword.set_value_from_entry(e)
+        print("--------------------------------")
+        crossword.clear_all_non_blocks()
+        crossword.apply_entry_on_relations(e, new_pattern)
+        
+        crossword.set_board_values_from_entries(entries)
+        crossword.print_info()
+        crossword.print_crossword()
+        continue
+
 start()
+
+
