@@ -20,6 +20,7 @@ from bartez.dictionary.trie_dust import DustDictionaryTriePatternMatcher, dust_t
 import bartez.tests.test_utils as test_utils
 
 from copy import copy
+from datetime import datetime
 
 # Symbols.FIRST + 0 = ?, first action
 ActionListTuple = namedtuple('Symbols', ['FIRST_ACTION', 'LAST_ACTION', 'OFFSET'])
@@ -28,7 +29,7 @@ ActionList = ActionListTuple(ord(Symbols.FIRST), ord(Symbols.LAST), 0)
 
 class CrosswordModel(object):
     def __init__(self):
-        self.__crossword = Crossworld(5, 4)
+        self.__crossword = Crossworld(4, 4)
         #self.__crossword = test_utils.get_test_crossword3x3()
         #self.__crossword = test_utils.get_test_crossword()
         #self.__dictionary = test_utils.get_test_dictionary()
@@ -84,7 +85,6 @@ class CrosswordModel(object):
 
 
     def reset(self):
-        self.__reset_round = True
         squares_count = self.get_squares_count()
         #blocks_count = int(squares_count * (np.random.sample(1) * 0.3 + 0.1))
         blocks_count = 1
@@ -94,7 +94,7 @@ class CrosswordModel(object):
         #distribution = np.array([char_symbol] * char_count + [block_symbol] * blocks_count)
         #np.random.shuffle(distribution)
         distribution = np.array([char_symbol] * squares_count)
-        distribution[4] = block_symbol 
+        distribution[5] = block_symbol
         #print(distribution)
         cols = self.get_columns_count()
         for i in range(len(distribution)):
@@ -169,8 +169,10 @@ class CrosswordModel(object):
     def apply_and_get_reward(self, row, col, char):
         # rewards
         entry_good_reward = 0.4
-        entry_bad_malus  = -0.04
-        blank_malus      = -0.1
+        entry_partial_good_reward = 0.1
+        #entry_bad_malus  = -0.04
+        entry_bad_malus  = 0
+        blank_malus      = -0.2
         total_blank_count = 0
         reward = 0
         
@@ -286,6 +288,14 @@ class CrosswordEnvironment(Environment):
 
 def start():
     environment = CrosswordEnvironment()
+    
+    episodes_count = 5000
+    batch_size = environment.get_squares_count() * 5
+    max_moves = batch_size
+    total_count = 0
+    total_iterations_count =  episodes_count * batch_size
+    update_frequency = 1000
+    highest_reward = -100
 
     agent_adam = Agent.create(
         agent='tensorforce', environment=environment, update=64, memory=10000,
@@ -296,8 +306,8 @@ def start():
     agent_ddqn = Agent.create(
         agent='ddqn',
         environment=environment,
-        batch_size=100,
-        memory=100000,
+        batch_size=batch_size,
+        memory=1000000,
         horizon=1,
         exploration=0.3,
         learning_rate=1e-4,
@@ -309,10 +319,7 @@ def start():
 
     agent = agent_ddqn
 
-    episodes_count = 5000
-    max_moves = environment.get_squares_count() * 3
-    total_count = 0
-    update_frequency = 1000
+
 
     # Train for episodes_count episodes
     for episode in range(episodes_count):
@@ -340,12 +347,20 @@ def start():
                 elif value == SquareValues.char:
                     value = '.'
 
-            if total_count % update_frequency == 0 or reward > 0:
+            #if total_count % update_frequency == 0 or reward > 0:
+            if reward > highest_reward:
+                highest_reward = reward
+            if total_count % update_frequency == 0:
                 print("################################")
                 print("episode: " + str(episode) + "/" + str(episodes_count))
-                print("iteration: " + str(total_count))
+                print("iteration: " + str(total_count) + "/" + str(total_iterations_count))
                 print("perform: ["+str(r) +"]["+str(c)+"] = " + str(value) + " -> " + symbol)
+                print("highest reward: " + str(highest_reward))
                 print("reward: " + str(reward))
+                now = datetime.now()
+                current_time = now.strftime("%H:%M:%S")
+                print("time =", current_time)
+
                 environment.print_crossword()
                 print("")
             total_count += 1

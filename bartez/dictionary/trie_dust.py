@@ -1,9 +1,9 @@
-from dustpy import Trie
+from dustpy import Trie, TrieWithPagesByLength, TrieWithPagesByLengthRobinMap, TrieWithPagesByLengthHopscotchMap
 
 class DustDictionaryTriePatternMatcher(object):
 
-    def __init__(self):
-        self.__trie = Trie()
+    def __init__(self, trie):
+        self.__trie = trie
 
     def add_word(self, word):
         if len(word) < 2:
@@ -20,7 +20,7 @@ class DustDictionaryTriePatternMatcher(object):
 
 
 def dust_trie_import_from_file(file):
-    trie_dictionary = DustDictionaryTriePatternMatcher()
+    trie_dictionary = DustDictionaryTriePatternMatcher(TrieWithPagesByLengthHopscotchMap())
 #    first = '0'
 
     with open(file) as f:
@@ -35,8 +35,18 @@ def dust_trie_import_from_file(file):
 
     return trie_dictionary
 
-t = Trie()
-t.add_word("test")
-results = t.find("t...")
-for _, rss in enumerate(results):
-    print(rss)
+
+
+def ImportTest(trie):
+    trie.add_word("test")
+    results = trie.find("t...")
+    for _, rss in enumerate(results):
+        print(rss)
+
+def DoImportTest():
+    ImportTest(Trie())
+    ImportTest(TrieWithPagesByLength())
+    ImportTest(TrieWithPagesByLengthRobinMap())
+    ImportTest(TrieWithPagesByLengthHopscotchMap())
+
+#DoImportTest()
