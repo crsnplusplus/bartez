@@ -244,9 +244,7 @@ class Crossworld:
                     print('.', end=' '),
                 else:
                     print(char, end=' '),
-
             print('')
-
         print('')
 
 
@@ -383,7 +381,7 @@ class Crossworld:
                 print("  left", square.get_neighbour(Direction.left))
 
 
-    def __print_entries(self):
+    def print_entries(self):
         for _, e in enumerate(self.__entries):
             value = e.get_value().replace("@", ".")
             desc = e.get_description() 
