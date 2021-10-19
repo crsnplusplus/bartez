@@ -1,45 +1,79 @@
-def get_default_board():
-    points = []
-    points.append([4, 0])
-    points.append([3, 1])
-    points.append([2, 2])
+from bartez.symbols import SquareValues
 
-    points.append([0, 4])
-
-    points.append([9, 1])
-    points.append([8, 2])
-    points.append([7, 3])
-    points.append([6, 4])
-    points.append([5, 5])
-    points.append([4, 6])
-    points.append([3, 7])
-    points.append([2, 8])
-    points.append([1, 9])
-    points.append([1, 11])
-    points.append([0, 12])
-    points.append([11, 5])
-    points.append([10, 6])
-
-    points.append([10, 8])
-    points.append([9, 9])
-    points.append([8, 10])
-    points.append([7, 11])
-    points.append([6, 12])
-    points.append([5, 13])
-    points.append([4, 14])
-    points.append([3, 15])
-    points.append([2, 16])
-
-    points.append([11, 13])
-    points.append([9, 15])
-    points.append([8, 16])
-    points.append([7, 17])
-    geometry = [12, 18]
-
-    return points, geometry
 
 def get_board3x3():
     points = []
     points.append([1, 1])
     geometry = [3, 3]
     return points, geometry
+
+
+def get_board_preset_01():
+    board_as_string = (\
+    ". . . . # . . . . . . . # . . . . . \n"
+    ". . . . . . . . . # . # . . . . . . \n"
+    ". . # . . . . . # . . . . . . . # . \n"
+    ". # . . . . . # . . . . . . . # . . \n"
+    "# . . . . . # . . . . . . . # . . . \n"
+    ". . . . . # . . . . . . . # . . . . \n"
+    ". . . . # . . . . . . . # . . . . . \n"
+    ". . . # . . . . . . . # . . . . . # \n"
+    ". . # . . . . . . . # . . . . . # . \n"
+    ". # . . . . . . . # . . . . . # . . \n"
+    ". . . . . . # . # . . . . . . . . . \n"
+    ". . . . . # . . . . . . . # . . . . \n")
+    return board_as_string
+
+def get_board_preset_02():
+    board_as_string = (\
+    "0. . . # . . . . # . . . . . \n"
+    ". . . . # . . . . # . . . . . \n"
+    ". . . . # . . . . # . . . . . \n"
+    ". . . # . . . . # . . . . . # \n"
+    ". . . # . . . . . . . # # # # \n"
+    "# . . . . . # # . . . . . . . \n"
+    "# # . . . . . . . # . . . . . \n"
+    ". . . . # . . . . . # . . . . \n"
+    ". . . . . # . . . . . . . # # \n"
+    ". . . . . . . # # . . . . . # \n"
+    "# # # # . . . . . . . # . . . \n"
+    "# . . . . . # . . . . # . . . \n"
+    ". . . . . # . . . . # . . . . \n"
+    ". . . . . # . . . . # . . . . \n"
+    ". . . . . # . . . . # . . . . \n")
+    return board_as_string
+
+
+def get_board_preset_small_01():
+    board_as_string=(\
+        "0 1 2 \n"
+        "0 # 2 \n"
+        "0 1 2 \n")
+    return board_as_string
+
+
+def generate_board_from_string(board_as_string):
+    points = []
+    
+    board = board_as_string.replace(" ", "")
+    strlen = len(board)
+    rows = board.count("\n")
+    cols = int((strlen - rows) / rows)
+    board = board_as_string.replace("\n", "") \
+                           .replace("\r", "") \
+                           .replace(" ", "")
+    assert(strlen % rows == 0)
+    for i, ch in enumerate(board):
+        row = int(i / cols)
+        col = i % cols
+
+        if ch == '#':
+            points.append([row, col])
+    
+    return points, [rows, cols]
+
+
+def get_default_board():
+    points = []
+    return generate_board_from_string(get_board_preset_01())
+

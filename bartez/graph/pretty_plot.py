@@ -38,7 +38,7 @@ def get_edge_trace():
 
 def pretty_plot_graph(graph, entries, color_h='rgb(255,255,255)', color_v='rgb(0,0,0)'):
     #set layout
-    return
+
     pos = nx.kamada_kawai_layout(graph)
 
     node_colors = []
