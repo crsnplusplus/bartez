@@ -1,13 +1,6 @@
 from bartez.symbols import SquareValues
 
 
-def get_board3x3():
-    points = []
-    points.append([1, 1])
-    geometry = [3, 3]
-    return points, geometry
-
-
 def get_board_preset_01():
     board_as_string = (\
     ". . . . # . . . . . . . # . . . . . \n"
@@ -44,6 +37,25 @@ def get_board_preset_02():
     return board_as_string
 
 
+def get_board_preset_03():
+    board_as_string = (\
+    "# . . . . . . . . . . . . . # \n"
+    ". # . . . . . . . . . . . # . \n"
+    ". . # . . . . . . . . . # . . \n"
+    ". . . # . . . . . . . # . . . \n"
+    ". . . . # . . . . . # . . . . \n"
+    ". . . . . # . . . # . . . . . \n"
+    ". . . . . . # . # . . . . . . \n"
+    ". . . . . . . . . . . . . . . \n"
+    ". . . . . . # . # . . . . . . \n"
+    ". . . . . # . . . # . . . . . \n"
+    ". . . . # . . . . . # . . . . \n"
+    ". . . # . . . . . . . # . . . \n"
+    ". . # . . . . . . . . . # . . \n"
+    ". # . . . . . . . . . . . # . \n"
+    "# . . . . . . . . . . . . . # \n")
+    return board_as_string
+
 def get_board_preset_small_01():
     board_as_string=(\
         "0 1 2 \n"
@@ -52,7 +64,7 @@ def get_board_preset_small_01():
     return board_as_string
 
 
-def generate_board_from_string(board_as_string):
+def generate_board_from_string(board_as_string, block_symbol='#'):
     points = []
     
     board = board_as_string.replace(" ", "")
@@ -67,7 +79,7 @@ def generate_board_from_string(board_as_string):
         row = int(i / cols)
         col = i % cols
 
-        if ch == '#':
+        if ch == block_symbol:
             points.append([row, col])
     
     return points, [rows, cols]
@@ -77,3 +89,6 @@ def get_default_board():
     points = []
     return generate_board_from_string(get_board_preset_01())
 
+
+def get_board3x3():
+    return generate_board_from_string(get_board_preset_small_01())

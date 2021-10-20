@@ -4,5 +4,5 @@ def print_error(message):
 
 def print_crossword(crossword, entries):
     crossword.clear_all_non_blocks()
-    crossword.set_entries(entries)
+    crossword.set_board_values_from_entries(entries, False)
     crossword.print_crossword()

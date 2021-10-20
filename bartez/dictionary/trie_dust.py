@@ -5,22 +5,25 @@ class DustDictionaryTriePatternMatcher(object):
     def __init__(self, trie):
         self.__trie = trie
 
+
     def add_word(self, word):
         if len(word) < 2:
             return
-
         self.__trie.add_word(word)
 
 
     def remove_word(self, word):
         self.__trie.remove_word(word)
 
+
     def get_matches(self, pattern):
         return self.__trie.find(pattern)
 
 
-def dust_trie_import_from_file(file):
-    trie_dictionary = DustDictionaryTriePatternMatcher(TrieWithPagesByLengthHopscotchMap())
+
+def dust_trie_import_from_file(file, wildcard, terminator):
+    t = TrieWithPagesByLengthHopscotchMap(ord(wildcard), ord(terminator))
+    trie_dictionary = DustDictionaryTriePatternMatcher(t)
 #    first = '0'
 
     with open(file) as f:
@@ -49,4 +52,4 @@ def DoImportTest():
     ImportTest(TrieWithPagesByLengthRobinMap())
     ImportTest(TrieWithPagesByLengthHopscotchMap())
 
-#DoImportTest()
+DoImportTest()

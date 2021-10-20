@@ -2,6 +2,7 @@ from bartez import boards
 from bartez.crossword import Crossworld
 from bartez.symbols import SquareValues
 from bartez.solver.solver import CrosswordSolver
+from bartez.solver.solver_dust import CrosswordSolverDust
 from bartez.word_dictionary import Dictionary
 
 
@@ -23,7 +24,8 @@ def main():
     crossword.prepare()
     crossword.print_crossword()
 
-    solver = CrosswordSolver(dictionary, crossword)
+#    solver = CrosswordSolver(dictionary, crossword)
+    solver = CrosswordSolverDust(dictionary, crossword)
     solver.run()
 
 
